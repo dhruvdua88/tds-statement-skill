@@ -101,6 +101,24 @@ on the e-filing/TRACES login for the deductor's TAN, and it exists to confirm th
 challans in the statement match what the bank actually reported. There is no
 offline substitute.
 
+## The utility judges identifiers too, not only their shape
+
+Two findings from running synthetic statements through the real utility, both
+worth knowing before planning a proof run:
+
+- `T-FV-2235` checks deductee PAN *validity*, not only the letter-digit pattern.
+  A pan that reads like one but fails the check digit is rejected.
+- The same applies to the deductor's TAN. Two synthetic statements whose TANs
+  pass the pattern ([A-Z]{4}[0-9]{5}[A-Z]) were rejected at the file header with
+  `T-FV-1010`, including one whose first three letters are a real area code. The
+  utility compares the TAN against something more internal than the pattern, and
+  a plausible-looking invented TAN does not clear it.
+
+Consequence for the demo fixture statements: a run stops at the identity gate
+with zero other field errors, which is a useful but partial result. A statement
+with a checksum-valid deductor identifier (a real TAN for a live filing) is what
+carries a run past it.
+
 ## Why we do not fabricate a .fvu
 
 The `.fvu` is the department's mark that a statement passed validation and that
