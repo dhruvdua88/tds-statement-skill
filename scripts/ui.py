@@ -106,6 +106,9 @@ def step_intake(ws: Workspace, body: dict) -> dict:
                                 financial_year=str(body.get("fy") or ""),
                                 quarter=str(body.get("quarter") or ""),
                                 report=str(job / "mapping.xlsx"))
+    token = str(body.get("token_previous") or "").strip()
+    if token:
+        st.deductor.update(regular_earlier="Y", token_previous=token)
     st.save(job / "statement.json")
     return {"job": job.name, "deductees": summary["deductees"], "challans": summary["challans"],
             "skipped": summary["skipped"], "pending": st.pending, "issues": _issues(st),

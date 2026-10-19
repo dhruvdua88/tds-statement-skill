@@ -117,6 +117,14 @@ class TestUI(unittest.TestCase):
         self.assertTrue(r["blockers"])
         self.assertEqual(self.get(r["files"][0]["url"])[:2], b"PK")
 
+    def test_previous_token_reaches_the_header(self):
+        r = self.post("intake", {"source": upload(FIX / "messy_source.xlsx"), "form": "140",
+                                 "fy": "2026-27", "quarter": "Q2", "token_previous": "123456789012345"})
+        st = json.loads(self.get(r["files"][0]["url"]))
+        self.assertEqual((st["deductor"]["regular_earlier"], st["deductor"]["token_previous"]),
+                         ("Y", "123456789012345"))
+        self.assertIn("PAN of every party", self.get("/").decode())
+
     def test_errors_are_plain_lines(self):
         r = self.post("build", {"job": "nosuchjob"})
         self.assertIn("start again", r["error"])

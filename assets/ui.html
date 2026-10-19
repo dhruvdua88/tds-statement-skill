@@ -67,6 +67,20 @@
   <p class="lead">Read the client's sheet, check it, write the statement file, and put together the
     folder for upload. Everything stays on this computer, and nothing is filed from here.</p>
 
+  <section class="card" id="s0">
+    <h2><span class="num">0</span> Before you start, collect these from the client</h2>
+    <p class="hint">Ask for all of it in one message. Anything missing becomes a blocker later.</p>
+    <ul class="issues">
+      <li><b>Deductee working sheet</b> (Excel/CSV): party name, <b>PAN of every party</b>, section, date, amount, rate, TDS, and the challan each row was paid through</li>
+      <li><b>Challans</b>: BSR code, deposit date, challan serial no., amounts, plus the <b>CSI file</b> from the e-filing portal</li>
+      <li><b>Previous period acknowledgement (token) number</b> of the last regular statement, or "none filed"</li>
+      <li><b>Deductor details</b>: TAN, PAN, name, address, phone, e-mail, and the responsible person's name, designation, PAN, mobile, e-mail</li>
+      <li><span class="optional">optional</span> PAN status from TRACES (valid / inoperative / invalid)</li>
+      <li><span class="optional">optional</span> TDS payable / expense ledger from Tally or Zoho, for the books reconciliation</li>
+      <li>For a correction: the statement as filed and its token number</li>
+    </ul>
+  </section>
+
   <section class="card" id="s1">
     <h2><span class="num">1</span> The source file and the period</h2>
     <p class="hint">The client's Excel or CSV. Messy is fine: title rows, totals and text amounts are handled.</p>
@@ -79,6 +93,7 @@
       </select></label>
       <label>Financial year <input id="fy" value="2026-27" size="8"></label>
       <label>Quarter <select id="quarter"><option>Q1</option><option selected>Q2</option><option>Q3</option><option>Q4</option></select></label>
+      <label>Previous statement token no. <input id="token_prev" placeholder="blank if none filed" size="16" inputmode="numeric"></label>
       <button id="b-intake">Read the file</button>
     </div>
     <div class="out" id="o1"></div>
@@ -220,7 +235,7 @@ function unlock() {
 $("b-intake").onclick = async () => {
   const source = await readFile($("source"));
   const data = await call("intake", {source, form: $("form").value, fy: $("fy").value.trim(),
-                                     quarter: $("quarter").value}, $("o1"), $("b-intake"));
+                                     quarter: $("quarter").value, token_previous: $("token_prev").value.trim()}, $("o1"), $("b-intake"));
   if (!data) return;
   job = data.job;
   $("o1").innerHTML = msg("ok", `Read ${data.deductees} deductee rows and ${data.challans} challans.` +

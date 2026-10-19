@@ -57,7 +57,7 @@ git clone <this repo> ~/TDS-Statement-Skill
 cd ~/TDS-Statement-Skill
 python3 -m pip install --user openpyxl        # only outside dependency
 python3 tests/make_fixtures.py
-python3 -m unittest discover -s tests         # 138 checks, no network needed
+python3 -m unittest discover -s tests         # 139 checks, no network needed
 ```
 
 To use it as an agent skill, put the folder where your agent looks for skills:

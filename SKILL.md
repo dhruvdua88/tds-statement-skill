@@ -47,6 +47,37 @@ Two consequences that come up constantly:
 
 ## The loop
 
+### 0. Ask for everything first, in one message
+
+Before running anything, send the client one checklist and wait for it. Asking
+piecemeal later costs a filing window, and the person filling it in should see
+the whole list at once. Ask for:
+
+1. **Deductee working sheet (Excel/CSV)** for the quarter: party name, **PAN of
+   every party**, section, date of payment/credit, amount paid, rate, TDS
+   deducted, date of deduction, and which challan each row was paid through.
+   A party without a PAN is reported as PANNOTAVBL and taxed at the higher rate,
+   so ask for the PAN, not the reason it is missing.
+2. **Challans** for every deposit: BSR code, date of deposit, challan serial
+   number, amounts (tax, interest, fee, others), and the challan PDFs/counterfoils.
+   Plus the **Challan Status Inquiry (CSI) file** from the e-filing portal for the
+   quarter; the utility matches challans against it.
+3. **Previous period acknowledgement (token / PRN) number** of the last regular
+   statement filed for this TAN and form, or a written "no earlier statement".
+4. **Deductor details**: TAN, PAN, name, address, phone, e-mail, GSTIN if any,
+   and the **person responsible**: name, designation, PAN, mobile, e-mail.
+5. **PAN status from TRACES** (valid / inoperative / invalid) for the deductees,
+   if the client can pull it; it catches inoperative PANs at the normal rate.
+6. **TDS payable / expense ledger** from Tally or Zoho for the quarter, for the
+   books-to-return reconciliation.
+7. For Form 138 (salary): employee PANs, salary paid and tax deducted per month.
+8. For a correction: the statement as filed, its token (PRN), and the TRACES
+   consolidated file / its hash.
+
+When a value is genuinely unavailable, leave the schema field blank and record
+it in `pending`. Never invent one to get a clean run. Items 5 and 6 are
+optional; the rest block a valid filing.
+
 ### 1. Read the source
 
 ```bash
@@ -231,17 +262,6 @@ build stops with an explanation instead of writing a file the utility rejects.
 Form 144 needs ten non-resident figures per deductee (status, country, nature of
 remittance, grossing up, rate basis and the like) that the statement document
 carries in `meta.non_resident`, keyed by PAN; see the layout reference.
-
-## What to ask the client for
-
-Ask for these at the start, because the statement cannot be filed without them
-and asking later costs a filing window: the deductor's PAN, the name,
-designation, PAN, mobile and e-mail of the person responsible for TDS, the
-address and phone to print, access to TRACES or the e-filing portal for the
-TAN, and the Challan Status Inquiry for the quarter.
-
-When a value is genuinely unavailable, leave the schema field blank and record
-it in `pending`. Never invent one to get a clean run.
 
 ## Standards this toolkit holds
 
