@@ -12,6 +12,7 @@
     tds package  statement.json -o deliverables/   assemble the filing folder
     tds fetch-official                             download the official utilities
     tds check-env                                  is this machine able to run the FVU
+    tds ui                                         the guided page, in the browser
     tds schema                                     the document contract, annotated
 
 Every subcommand prints what it did and returns a non-zero exit code when
@@ -248,6 +249,12 @@ def cmd_check_env(args) -> int:
     return 0 if ok else 1
 
 
+def cmd_ui(args) -> int:
+    import ui
+
+    return ui.serve(port=args.port, open_browser=not args.no_browser)
+
+
 def cmd_schema(args) -> int:
     print(SCHEMA_HELP)
     return 0
@@ -354,6 +361,11 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--jar", default="")
     s.add_argument("--csi", default="")
     s.set_defaults(func=cmd_check_env)
+
+    s = sub.add_parser("ui", help="open the guided page in the browser (local only)")
+    s.add_argument("--port", type=int, default=0, help="port on 127.0.0.1 (default: any free one)")
+    s.add_argument("--no-browser", action="store_true", help="print the address instead of opening it")
+    s.set_defaults(func=cmd_ui)
 
     s = sub.add_parser("schema", help="print the document contract")
     s.set_defaults(func=cmd_schema)

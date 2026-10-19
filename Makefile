@@ -1,4 +1,4 @@
-.PHONY: help fixtures test golden demo clean install check readme-count
+.PHONY: help fixtures test golden demo clean install check readme-count ui
 
 help:
 	@echo "make fixtures   regenerate the test fixtures (fixtures/means synthetic data)"
@@ -7,6 +7,7 @@ help:
 	@echo "make demo       run the whole pipeline over the messy fixture into /tmp/tdsdemo"
 	@echo "make install    symlink this folder into ~/.claude/skills"
 	@echo "make check      environment check for the official utility"
+	@echo "make ui         open the guided page in the browser (local only)"
 	@echo "make readme-count  rewrite the test count in README.md from the real suite"
 
 fixtures:
@@ -17,6 +18,9 @@ test:
 
 golden:
 	python3 tests/update_golden.py
+
+ui:
+	python3 scripts/tds.py ui
 
 readme-count:
 	python3 tests/readme_count.py

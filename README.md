@@ -31,6 +31,25 @@ utility against the real Challan Status Inquiry, and packages what goes up.
   the field or record it is about. A real Challan Status Inquiry is a blocker in
   its own right, because the utility cannot write a `.fvu` without it.
 
+## For non-coders
+
+There is a guided page that runs in your browser, on your own computer:
+
+- **Mac:** double-click `start-ui.command` in this folder.
+- **Anywhere:** run `python3 scripts/tds.py ui`, or `make ui`.
+
+The page walks through seven steps: choose the client's Excel file and the
+period, see what needs attention in plain English, write the statement file,
+make the working paper (interest and late fee included, and a books
+reconciliation if you add the TDS ledger), write a correction if you need one,
+optionally run the official validation, and download the folder to hand over.
+Each step has download links for its files. The page is only reachable from
+this computer, and nothing is uploaded anywhere.
+
+The official validation step is optional. It needs Java and the department's
+utility installed (see below). Everything else works without them. A statement
+is called *validated* only when that utility has written a `.fvu` file.
+
 ## Install
 
 ```bash
@@ -38,7 +57,7 @@ git clone <this repo> ~/TDS-Statement-Skill
 cd ~/TDS-Statement-Skill
 python3 -m pip install --user openpyxl        # only outside dependency
 python3 tests/make_fixtures.py
-python3 -m unittest discover -s tests         # 133 checks, no network needed
+python3 -m unittest discover -s tests         # 138 checks, no network needed
 ```
 
 To use it as an agent skill, put the folder where your agent looks for skills:
@@ -75,7 +94,7 @@ python3 $S/scripts/tds.py package statement.json -o deliverables/ \
 ```
 
 `python3 scripts/tds.py --help` lists everything, including `excel`,
-`check-env` and `schema`.
+`correct`, `recon`, `ui`, `check-env` and `schema`.
 
 ## Requirements
 

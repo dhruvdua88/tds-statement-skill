@@ -98,6 +98,10 @@ If a required header value is still missing, the file is named
 alongside it. The utility rejects input names longer than 12 characters
 including `.txt`, which is why the copy exists and why it is the one you run.
 
+For people who would rather not use a terminal, `python3 scripts/tds.py ui`
+(or `make ui`, or double-clicking `start-ui.command` on a Mac) opens a guided
+page on 127.0.0.1 that runs the same steps and offers each output for download.
+
 ### 4. Run the official utility
 
 ```bash
@@ -257,6 +261,11 @@ it in `pending`. Never invent one to get a clean run.
   these.
 
 ## Environment
+
+Only `tds fvu` and `tds check-env` need Java and the official utility.
+Intake, lint, build, excel, queries, recon, correct, package and the `tds ui`
+page all run without them. That means everything up to a draft or ready TXT,
+but never a `.fvu`.
 
 `tds check-env` reports whether this machine can run the utility. The parts
 that are easy to get wrong:

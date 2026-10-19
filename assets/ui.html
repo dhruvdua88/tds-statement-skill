@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TDS Statement</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --text: #1d2330; --muted: #5b6475; --line: #dde1e8;
+    --accent: #1f4fa3; --accent-text: #ffffff; --bad: #b42318; --bad-bg: #fdecea;
+    --warn: #8a5a00; --warn-bg: #fff5d6; --ok: #146c2e; --ok-bg: #e5f4ea;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12151b; --card: #1b2029; --text: #e7eaf0; --muted: #9aa3b2; --line: #2c3340;
+      --accent: #7aa7ff; --accent-text: #0d1320; --bad: #ff8a80; --bad-bg: #3a1d1b;
+      --warn: #ffd27a; --warn-bg: #3a2f14; --ok: #7fd99a; --ok-bg: #16301f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  .lead { color: var(--muted); margin: 0 0 24px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+          padding: 18px 20px; margin: 0 0 16px; }
+  .card h2 { font-size: 17px; margin: 0 0 4px; display: flex; gap: 10px; align-items: center; }
+  .num { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+         background: var(--accent); color: var(--accent-text); font-size: 13px; font-weight: 600; }
+  .card.locked { opacity: .55; }
+  .hint { color: var(--muted); margin: 0 0 12px; font-size: 14px; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin: 8px 0; }
+  label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+  input, select { font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line);
+                  border-radius: 6px; padding: 7px 9px; min-width: 0; }
+  input[type=file] { padding: 5px; max-width: 100%; }
+  button { font: inherit; font-weight: 600; background: var(--accent); color: var(--accent-text);
+           border: 0; border-radius: 6px; padding: 8px 16px; cursor: pointer; }
+  button:disabled { opacity: .5; cursor: default; }
+  .out { margin-top: 12px; }
+  .msg { border-radius: 6px; padding: 9px 12px; margin: 8px 0; }
+  .msg.bad { background: var(--bad-bg); color: var(--bad); }
+  .msg.warn { background: var(--warn-bg); color: var(--warn); }
+  .msg.ok { background: var(--ok-bg); color: var(--ok); }
+  .badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+  .badge.bad { background: var(--bad-bg); color: var(--bad); }
+  .badge.warn { background: var(--warn-bg); color: var(--warn); }
+  .badge.ok { background: var(--ok-bg); color: var(--ok); }
+  ul.issues { margin: 6px 0; padding-left: 18px; }
+  ul.issues li { margin: 3px 0; }
+  .ref { color: var(--muted); font-size: 13px; }
+  .files a { display: inline-block; margin: 4px 10px 0 0; color: var(--accent); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--line); }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.differs td { background: var(--warn-bg); }
+  details summary { cursor: pointer; color: var(--muted); }
+  label .optional { align-self: flex-start; }
+  .optional { font-size: 12px; font-weight: 600; color: var(--muted); border: 1px solid var(--line);
+              border-radius: 999px; padding: 1px 8px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>TDS statement</h1>
+  <p class="lead">Read the client's sheet, check it, write the statement file, and put together the
+    folder for upload. Everything stays on this computer, and nothing is filed from here.</p>
+
+  <section class="card" id="s1">
+    <h2><span class="num">1</span> The source file and the period</h2>
+    <p class="hint">The client's Excel or CSV. Messy is fine: title rows, totals and text amounts are handled.</p>
+    <div class="row">
+      <label>Source file <input type="file" id="source" accept=".xlsx,.xlsm,.csv,.tsv"></label>
+      <label>Form <select id="form">
+        <option value="140">140 - resident non-salary (old 26Q)</option>
+        <option value="138">138 - salary (old 24Q), Q1 to Q3</option>
+        <option value="144">144 - non-residents (old 27Q)</option>
+      </select></label>
+      <label>Financial year <input id="fy" value="2026-27" size="8"></label>
+      <label>Quarter <select id="quarter"><option>Q1</option><option selected>Q2</option><option>Q3</option><option>Q4</option></select></label>
+      <button id="b-intake">Read the file</button>
+    </div>
+    <div class="out" id="o1"></div>
+  </section>
+
+  <section class="card locked" id="s2">
+    <h2><span class="num">2</span> What needs attention</h2>
+    <p class="hint">Blockers stop a valid filing. Warnings need someone to look at them. If the deductor's own
+      details were not in the sheet, download statement.json, fill them in, and upload it back here.</p>
+    <div class="row">
+      <label>Edited statement.json <input type="file" id="edited" accept=".json"></label>
+      <button id="b-statement" disabled>Use the edited copy</button>
+    </div>
+    <div class="out" id="o2"></div>
+  </section>
+
+  <section class="card locked" id="s3">
+    <h2><span class="num">3</span> Write the statement file (TXT)</h2>
+    <p class="hint">While anything is still outstanding, the file is named DRAFT so it cannot be mistaken for the real one.</p>
+    <button id="b-build" disabled>Write the TXT</button>
+    <div class="out" id="o3"></div>
+  </section>
+
+  <section class="card locked" id="s4">
+    <h2><span class="num">4</span> Working paper</h2>
+    <p class="hint">The workbook a reviewer signs, with the interest and late-fee working. Add the TDS payable
+      ledger from Tally or Zoho to tie the return to the books (optional).</p>
+    <div class="row">
+      <label>Filed on (for the late fee) <input type="date" id="filed"></label>
+      <label>Ledger export <span class="optional">optional</span> <input type="file" id="ledger" accept=".xlsx,.xlsm,.csv"></label>
+      <label>Ledger kind <select id="lkind"><option value="tds">TDS payable</option><option value="expense">Expense</option></select></label>
+      <label>A single Amount column shows credits as
+        <select id="csign"><option value="negative">negative (usual in Tally)</option><option value="positive">positive</option></select></label>
+      <button id="b-excel" disabled>Make the workbook</button>
+    </div>
+    <div class="out" id="o4"></div>
+  </section>
+
+  <section class="card locked" id="s5">
+    <h2><span class="num">5</span> Correction statement <span class="optional">optional</span></h2>
+    <p class="hint">Only for a statement that has already been filed. The statement from step 1 counts as the one
+      filed. Upload a corrected copy of statement.json and the PRN of the regular statement. The TRACES
+      consolidated file cannot be read because its layout is not published, so type its hash in the box.</p>
+    <div class="row">
+      <label>Corrected statement.json <input type="file" id="corrected" accept=".json"></label>
+      <label>PRN of the regular statement <input id="prn" size="17"></label>
+      <label>PRN of the last correction <input id="prev" size="17" placeholder="if any"></label>
+      <label>Consolidated file hash <input id="hash" size="20"></label>
+      <label>TRACES conso file <input type="file" id="conso" accept=".tds,.txt,.zip"></label>
+      <button id="b-correct" disabled>Write the correction</button>
+    </div>
+    <div class="out" id="o5"></div>
+  </section>
+
+  <section class="card locked" id="s6">
+    <h2><span class="num">6</span> Official validation (FVU) <span class="optional">optional here</span></h2>
+    <p class="hint">This step needs Java and the department's File Validation Utility on this computer, plus the
+      real Challan Status Inquiry (.csi) for the TAN. Every other step works without them. A statement counts as
+      <b>validated</b> only once the utility has written a <b>.fvu</b> file, and this page says so only then.</p>
+    <div class="row">
+      <button id="b-env" disabled>Check this computer</button>
+      <label>CSI file <input type="file" id="csi" accept=".csi"></label>
+      <button id="b-fvu" disabled>Run the utility</button>
+    </div>
+    <div class="out" id="o6"></div>
+  </section>
+
+  <section class="card locked" id="s7">
+    <h2><span class="num">7</span> The folder to hand over</h2>
+    <p class="hint">The TXT, the working paper, the query list, the Form 27A figures and a checklist. The checklist
+      starts with READY TO UPLOAD only when a .fvu exists and no blocker is left. A person does the upload.</p>
+    <button id="b-package" disabled>Put the folder together</button>
+    <div class="out" id="o7"></div>
+  </section>
+</main>
+<script>
+let job = null;
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+
+function readFile(input) {
+  const f = input.files[0];
+  if (!f) return Promise.resolve(null);
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve({name: f.name, data: String(r.result).split(",")[1] || ""});
+    r.onerror = () => reject(new Error("the browser could not read " + f.name));
+    r.readAsDataURL(f);
+  });
+}
+
+async function call(step, body, out, button) {
+  out.innerHTML = '<p class="hint">Working...</p>';
+  if (button) button.disabled = true;
+  try {
+    const res = await fetch("/api/" + step, {method: "POST", headers: {"Content-Type": "application/json"},
+                                             body: JSON.stringify(body)});
+    const data = await res.json();
+    if (data.error) { out.innerHTML = msg("bad", data.error); return null; }
+    return data;
+  } catch (e) {
+    out.innerHTML = msg("bad", "The page lost contact with the local program. Is it still running?");
+    return null;
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
+
+const msg = (kind, text) => `<div class="msg ${kind}">${esc(text)}</div>`;
+const files = (list) => list && list.length
+  ? '<div class="files">Download: ' + list.map((f) => `<a href="${f.url}">${esc(f.name)}</a>`).join("") + "</div>" : "";
+
+function issueList(title, items, kind) {
+  if (!items.length) return "";
+  return `<p><span class="badge ${kind}">${esc(title)} ${items.length}</span></p><ul class="issues">` +
+    items.map((i) => `<li>${esc(i.message)} <span class="ref">${esc(i.ref || "")}</span></li>`).join("") + "</ul>";
+}
+
+function showChecks(data) {
+  const pend = (data.pending || []).filter((p) => p.blocking !== false);
+  const iss = data.issues;
+  let html = "";
+  if (!iss.blockers.length && !iss.warnings.length) html += msg("ok", "No blockers and no warnings.");
+  html += issueList("Blockers", iss.blockers, "bad");
+  html += issueList("Warnings", iss.warnings, "warn");
+  if (iss.notes.length) {
+    html += `<details><summary>${iss.notes.length} note(s) for the record</summary><ul class="issues">` +
+      iss.notes.map((i) => `<li>${esc(i.message)} <span class="ref">${esc(i.ref || "")}</span></li>`).join("") + "</ul></details>";
+  }
+  if (pend.length) html += `<p class="hint">Still to come from the client: ${pend.map((p) => esc(p.why || p.field)).join(", ")}.</p>`;
+  $("o2").innerHTML = html + files(data.files);
+}
+
+function unlock() {
+  for (const id of ["s2", "s3", "s4", "s5", "s6", "s7"]) $(id).classList.remove("locked");
+  for (const id of ["b-statement", "b-build", "b-excel", "b-correct", "b-env", "b-package"]) $(id).disabled = false;
+}
+
+$("b-intake").onclick = async () => {
+  const source = await readFile($("source"));
+  const data = await call("intake", {source, form: $("form").value, fy: $("fy").value.trim(),
+                                     quarter: $("quarter").value}, $("o1"), $("b-intake"));
+  if (!data) return;
+  job = data.job;
+  $("o1").innerHTML = msg("ok", `Read ${data.deductees} deductee rows and ${data.challans} challans.` +
+    (data.skipped ? ` ${data.skipped} row(s) were skipped; the mapping report lists each one.` : "")) + files(data.files);
+  showChecks(data);
+  unlock();
+};
+
+$("b-statement").onclick = async () => {
+  const statement = await readFile($("edited"));
+  const data = await call("statement", {job, statement}, $("o2"), $("b-statement"));
+  if (data) showChecks(data);
+};
+
+$("b-build").onclick = async () => {
+  const data = await call("build", {job}, $("o3"), $("b-build"));
+  if (!data) return;
+  const draft = data.status === "DRAFT";
+  $("o3").innerHTML = (draft ? msg("warn", "Written as a DRAFT. Still waiting for: " + data.draft_reason)
+                             : msg("ok", "Statement file written. It is not validated yet: only the official utility can do that (step 6).")) +
+    `<p class="hint">${data.records.CD} challan(s), ${data.records.DD} deductee row(s). Tax ${esc(data.totals.tax)}, deposited ${esc(data.totals.deposit)}.</p>` +
+    files(data.files);
+  $("b-fvu").disabled = false;
+};
+
+$("b-excel").onclick = async () => {
+  const ledger = await readFile($("ledger"));
+  const d = $("filed").value;  // yyyy-mm-dd from the date picker
+  const filed_on = d ? d.split("-").reverse().join("-") : "";
+  const data = await call("excel", {job, filed_on, ledger, ledger_kind: $("lkind").value,
+                                    credit_sign: $("csign").value}, $("o4"), $("b-excel"));
+  if (!data) return;
+  const w = data.interest;
+  let html = (Number(w.interest_short) > 0 || Number(w.fee_short) > 0)
+    ? msg("warn", `Interest worked out at ${w.interest} against ${w.interest_paid} on the challans, and a late fee of ${w.fee} against ${w.fee_paid} paid. Nothing has been added to any challan.`)
+    : msg("ok", `Interest worked out at ${w.interest}; late fee ${w.fee} (${w.days_late} day(s) after ${w.statement_due}). The challans already cover both.`);
+  if (data.recon) {
+    html += "<table><tr><th>Section</th><th class=n>Per books</th><th class=n>Per statement</th><th class=n>Per challans</th></tr>" +
+      data.recon.map((r) => `<tr class="${r.differs ? "differs" : ""}"><td>${esc(r.section)}</td><td class=n>${esc(r.books)}</td><td class=n>${esc(r.statement)}</td><td class=n>${esc(r.challans)}</td></tr>`).join("") +
+      "</table>" + (data.recon_unmapped ? msg("warn", `${data.recon_unmapped} ledger row(s) had no readable section; the workbook lists them.`) : "");
+  }
+  $("o4").innerHTML = html + files(data.files);
+};
+
+$("b-correct").onclick = async () => {
+  const corrected = await readFile($("corrected"));
+  const conso = await readFile($("conso"));
+  const data = await call("correct", {job, corrected, conso, original_token: $("prn").value,
+                                      previous_token: $("prev").value, consolidated_hash: $("hash").value},
+                          $("o5"), $("b-correct"));
+  if (!data) return;
+  $("o5").innerHTML = (data.pending.length ? msg("warn", "Written as a DRAFT: " + data.pending.join("; "))
+                                           : msg("ok", `${data.type} correction written.`)) +
+    `<p class="hint">Updated rows: ${esc(data.updated_rows.join(", ") || "none")}. Added rows: ${esc(data.added_rows.join(", ") || "none")}.</p>` +
+    files(data.files);
+};
+
+$("b-env").onclick = async () => {
+  const data = await call("check-env", {}, $("o6"), $("b-env"));
+  if (!data) return;
+  $("o6").innerHTML = data.ready
+    ? msg("ok", "Java and the official utility were found. Choose the CSI file and run it.")
+    : msg("warn", "The official utility cannot run on this computer yet: " +
+          [data.java_missing, data.jar_missing].filter(Boolean).join(" ") +
+          " Every other step works without it.");
+};
+
+$("b-fvu").onclick = async () => {
+  const csi = await readFile($("csi"));
+  const data = await call("fvu", {job, csi}, $("o6"), $("b-fvu"));
+  if (!data) return;
+  $("o6").innerHTML = (data.validated ? msg("ok", "Validated: the utility wrote a .fvu file.")
+                                      : msg("warn", "Not validated: the utility did not write a .fvu file (" + data.status + ").")) +
+    `<pre style="white-space:pre-wrap">${esc(data.summary)}</pre>` + files(data.files);
+};
+
+$("b-package").onclick = async () => {
+  const data = await call("package", {job}, $("o7"), $("b-package"));
+  if (!data) return;
+  $("o7").innerHTML = (data.ready ? msg("ok", "READY TO UPLOAD. A .fvu exists and no blocker is left.")
+                                  : msg("warn", "NOT READY - do not upload. " + (data.blockers.length ? data.blockers.length + " blocker(s) remain; they are listed in the checklist." : ""))) +
+    files(data.files);
+};
+</script>
+</body>
+</html>
