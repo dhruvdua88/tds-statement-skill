@@ -1,0 +1,262 @@
+#!/usr/bin/env python3
+"""Pipeline tests. No network, no official utility, no dependencies beyond openpyxl.
+
+    python3 -m unittest discover -s tests -v
+
+What these tests can and cannot prove: they prove the engine is self-consistent
+and stable, and that intake reads a realistic messy sheet. They cannot prove the
+department's utility will accept a file - only the utility can do that, which is
+why the private regression test against a previously accepted statement exists
+alongside these.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import subprocess
+import sys
+import tempfile
+import unittest
+from decimal import Decimal
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+SCRIPTS = ROOT / "scripts"
+sys.path.insert(0, str(SCRIPTS))
+
+import build_txt  # noqa: E402
+import intake  # noqa: E402
+import lint  # noqa: E402
+from model import Challan, Deductee, Statement, date8, norm_date  # noqa: E402
+
+FIX = ROOT / "tests" / "fixtures"
+GOLDEN = ROOT / "tests" / "golden"
+
+
+class TestModel(unittest.TestCase):
+    def test_financial_year_derivations(self):
+        st = Statement(financial_year="2026-27")
+        self.assertEqual(st.tax_year, "202627")
+        self.assertEqual(st.assessment_year, "202728")
+        self.assertEqual(Statement(financial_year="2025-26").assessment_year, "202627")
+
+    def test_dates_normalise(self):
+        for value, expected in [
+            ("31-07-2026", "31-07-2026"), ("31072026", "31-07-2026"),
+            ("31/07/2026", "31-07-2026"), ("2026-07-31", "31-07-2026"),
+        ]:
+            self.assertEqual(norm_date(value), expected, value)
+        self.assertEqual(date8("31-07-2026"), "31072026")
+
+    def test_bad_amount_is_refused_not_zeroed(self):
+        with self.assertRaises(Exception):
+            Deductee.from_dict({
+                "challan_no": 1, "pan": "AAECS1234K", "name": "X", "section": "1023",
+                "payment_date": "31-07-2026", "deduction_date": "31-07-2026",
+                "amount_paid": "not a number", "tds": "1",
+            })
+
+    def test_deductee_code_from_pan(self):
+        row = Deductee.from_dict({
+            "challan_no": 1, "pan": "AAECS1234K", "name": "X", "section": "1023",
+            "payment_date": "31-07-2026", "deduction_date": "31-07-2026",
+            "amount_paid": "100", "tds": "1",
+        })
+        self.assertEqual(row.deductee_code, "C")
+
+    def test_round_trip(self):
+        st = Statement.load(FIX / "example_140.json")
+        again = Statement.from_dict(json.loads(json.dumps(st.to_dict())))
+        self.assertEqual(st.to_dict(), again.to_dict())
+
+
+class TestBuild140(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.st = Statement.load(FIX / "example_140.json")
+        cls.tmp = Path(tempfile.mkdtemp(prefix="tds-test-"))
+        cls.manifest = build_txt.write(cls.st, cls.tmp)
+        cls.txt = cls.tmp / cls.manifest["file"]
+        cls.lines = cls.txt.read_bytes().decode("ascii").split("\r\n")
+        if cls.lines and cls.lines[-1] == "":
+            cls.lines.pop()
+
+    def test_record_widths(self):
+        widths = {"FH": 18, "BH": 72, "CD": 30, "DD": 45}
+        for i, line in enumerate(self.lines, 1):
+            parts = line.split("^")
+            self.assertEqual(parts[0], str(i), f"line {i} numbering")
+            self.assertIn(parts[1], widths, f"line {i} record type")
+            self.assertEqual(len(parts), widths[parts[1]], f"line {i} {parts[1]} width")
+
+    def test_record_order_and_interleaving(self):
+        types = [line.split("^")[1] for line in self.lines]
+        self.assertEqual(types[:2], ["FH", "BH"])
+        self.assertEqual(types.count("CD"), 3)
+        self.assertEqual(types.count("DD"), 6)
+        open_cd = None
+        for parts in (l.split("^") for l in self.lines):
+            if parts[1] == "CD":
+                open_cd = parts[3]
+            elif parts[1] == "DD":
+                self.assertEqual(parts[4], open_cd)
+
+    def test_deductee_serial_is_global(self):
+        serials = [int(l.split("^")[3]) for l in self.lines if l.split("^")[1] == "DD"]
+        self.assertEqual(serials, list(range(1, 7)))
+
+    def test_challan_allocation_ties(self):
+        for row in self.st.allocation():
+            self.assertEqual(row["remaining"], Decimal("0.00"), row)
+
+    def test_file_hygiene(self):
+        raw = self.txt.read_bytes()
+        self.assertTrue(raw.endswith(b"\r\n"))
+        self.assertFalse(raw.startswith(b"\xef\xbb\xbf"))
+        raw.decode("ascii")
+        self.assertEqual(self.lines[-1].split("^")[1], "DD")
+
+    def test_golden_bytes(self):
+        golden = GOLDEN / "example_140.txt"
+        self.assertTrue(golden.exists(), "run tests/make_fixtures.py then tests/update_golden.py")
+        self.assertEqual(hashlib.sha256(self.txt.read_bytes()).hexdigest(),
+                         hashlib.sha256(golden.read_bytes()).hexdigest())
+
+    def test_lint_is_clean(self):
+        issues = lint.model_issues(self.st) + lint.txt_issues(self.txt, self.st, build_txt.load_layout("140"))
+        errors = [str(i) for i in issues if i.level == lint.ERROR]
+        self.assertEqual(errors, [], "\n".join(errors))
+
+    def test_short_name_is_legal(self):
+        self.assertLessEqual(len(build_txt.short_name(self.st)), 12)
+
+    def test_build_refuses_unbalanced_challan(self):
+        st = Statement.load(FIX / "example_140.json")
+        st.deductees = st.deductees[:-1]
+        with self.assertRaises(build_txt.BuildError):
+            build_txt.write(st, tempfile.mkdtemp())
+
+
+class TestLintCatchesProblems(unittest.TestCase):
+    def test_missing_responsible_person_pan_is_an_error(self):
+        st = Statement.load(FIX / "example_140.json")
+        st.responsible_person["pan"] = ""
+        codes = {i.code for i in lint.model_issues(st) if i.level == lint.ERROR}
+        self.assertIn("RP_PAN", codes)
+
+    def test_rate_deviation_is_flagged(self):
+        st = Statement.load(FIX / "example_140.json")
+        st.deductees[1].tds = Decimal("60000.00")
+        st.deductees[1].amount_paid = Decimal("30000000.00")
+        codes = {i.code for i in lint.model_issues(st) if i.level == lint.WARN}
+        self.assertIn("RATE_DEVIATION", codes)
+
+    def test_duplicate_rows_are_flagged(self):
+        st = Statement.load(FIX / "example_140.json")
+        clone = Deductee.from_dict(st.deductees[2].to_dict())
+        clone.challan_no = 1
+        st.deductees.append(clone)
+        # rebalance so the allocation check does not mask the duplicate check
+        st.challans[0].tax += clone.tds
+        st.challans[0].total += clone.tds
+        codes = {i.code for i in lint.model_issues(st) if i.level == lint.WARN}
+        self.assertIn("POSSIBLE_DUPLICATE", codes)
+
+    def test_draft_naming_when_something_is_outstanding(self):
+        st = Statement.load(FIX / "example_140.json")
+        st.pending = [{"field": "responsible_person.pan", "why": "client to provide", "blocking": True}]
+        self.assertEqual(build_txt.output_name(st), "DRAFT_PENDING_HEADER.txt")
+        manifest = build_txt.write(st, tempfile.mkdtemp())
+        self.assertEqual(manifest["status"], "DRAFT")
+
+
+class TestIntake(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = Path(tempfile.mkdtemp(prefix="tds-intake-"))
+        report = cls.tmp / "mapping.xlsx"
+        cls.st, cls.summary = intake.intake(
+            [str(FIX / "messy_source.xlsx")], form="140",
+            financial_year="2026-27", quarter="Q2", report=str(report),
+        )
+        cls.report = report
+
+    def test_rows_read(self):
+        self.assertEqual(len(self.st.deductees), 6)
+        self.assertEqual(len(self.st.challans), 3)
+
+    def test_amounts_parsed_from_messy_text(self):
+        first = self.st.deductees[0]
+        self.assertEqual(first.amount_paid, Decimal("1500000.00"))
+        self.assertEqual(first.tds, Decimal("15000.00"))
+
+    def test_sections_read_from_descriptions(self):
+        got = [r.section for r in self.st.deductees]
+        self.assertEqual(got, ["1023", "1031", "1027", "1023", "1027", "1023"])
+
+    def test_challans_read_from_their_own_tab(self):
+        serials = sorted(c.challan_serial for c in self.st.challans)
+        self.assertEqual(serials, ["90001", "90002", "90003"])
+
+    def test_every_row_carries_a_source_reference(self):
+        for row in self.st.deductees:
+            self.assertTrue(row.source_ref.startswith("Deductee!"), row.source_ref)
+
+    def test_total_row_is_not_taken_as_a_deductee(self):
+        names = [r.name.lower() for r in self.st.deductees]
+        self.assertNotIn("total", names)
+
+    def test_allocation_ties_after_intake(self):
+        for row in self.st.allocation():
+            self.assertEqual(row["remaining"], Decimal("0.00"), row)
+
+    def test_mapping_report_written(self):
+        self.assertTrue(self.report.exists())
+
+    def test_header_values_become_named_pending_items(self):
+        fields = {p["field"] for p in self.st.pending}
+        self.assertIn("deductor.tan", fields)
+        self.assertIn("responsible_person.pan", fields)
+        self.assertTrue(all(p["blocking"] for p in self.st.pending))
+
+    def test_body_is_clean_once_the_header_is_supplied(self):
+        """Intake cannot invent the deductor's own details; everything else must be right.
+
+        Run against a copy: the class-level statement is shared between tests, and
+        mutating it here would hide a pending-item failure in another test.
+        """
+        import copy as _copy
+        st = Statement.from_dict(_copy.deepcopy(self.st.to_dict()))
+        good = Statement.load(FIX / "example_140.json")
+        st.deductor = dict(good.deductor)
+        st.responsible_person = dict(good.responsible_person)
+        st.pending = []
+        issues = lint.model_issues(st)
+        errors = [str(i) for i in issues if i.level == lint.ERROR]
+        self.assertEqual(errors, [], "\n".join(errors))
+
+
+class TestCli(unittest.TestCase):
+    def test_schema_and_check_env_run(self):
+        out = subprocess.run([sys.executable, str(SCRIPTS / "tds.py"), "schema"],
+                             capture_output=True, text=True)
+        self.assertEqual(out.returncode, 0)
+        self.assertIn("tds-statement/1", out.stdout)
+
+    def test_build_and_lint_via_cli(self):
+        tmp = Path(tempfile.mkdtemp(prefix="tds-cli-"))
+        build = subprocess.run(
+            [sys.executable, str(SCRIPTS / "tds.py"), "build",
+             str(FIX / "example_140.json"), "-o", str(tmp)],
+            capture_output=True, text=True)
+        self.assertEqual(build.returncode, 0, build.stderr)
+        lint_run = subprocess.run(
+            [sys.executable, str(SCRIPTS / "tds.py"), "lint",
+             str(FIX / "example_140.json"), "--txt", str(tmp / "EX140Q2.txt")],
+            capture_output=True, text=True)
+        self.assertEqual(lint_run.returncode, 0, lint_run.stdout + lint_run.stderr)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)

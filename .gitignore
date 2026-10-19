@@ -1,0 +1,17 @@
+# Client data, published builds and local scratch
+tests/private/
+tests/private/out/
+build/
+out/
+*.tmp
+.DS_Store
+__pycache__/
+*.pyc
+
+# Downloaded official packages (never redistribute; fetch on demand)
+.tds-utils/
+*.jar
+*.fvu
+
+# Real statements must never be committed
+*.eml
