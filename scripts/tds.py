@@ -4,6 +4,7 @@
     tds intake   SOURCE...  -o statement.json      read what the client sent
     tds lint     statement.json                    pre-flight checks
     tds build    statement.json -o build/          write the TXT
+    tds correct  filed.json corrected.json -o c/   a correction with only the changed records
     tds fvu      build/X.txt --csi challan.csi     run the official utility
     tds excel    statement.json -o working.xlsx    build the working paper
     tds queries  statement.json -o queries.xlsx    the blockers stopping the .fvu
@@ -93,6 +94,28 @@ def cmd_build(args) -> int:
     print(f"sha256     {manifest['sha256'][:24]}...")
     print(f"totals     tax {manifest['totals']['tax']} + interest {manifest['totals']['interest']} "
           f"= deposit {manifest['totals']['deposit']}")
+    return 0
+
+
+def cmd_correct(args) -> int:
+    import correct
+
+    if args.conso:
+        print("tds correct: the TRACES consolidated file layout for Forms 138, 140 and 144 is not "
+              "published, so it cannot be read without guessing; start from the statement "
+              "document as filed: tds correct ORIGINAL.json CORRECTED.json -o DIR", file=sys.stderr)
+        return 2
+    manifest = correct.write(Statement.load(args.original), Statement.load(args.corrected),
+                             args.out, ctype=args.type or None)
+    print(f"type       {manifest['correction_type']}")
+    print(f"status     {manifest['status']}")
+    for p in manifest["pending"]:
+        print(f"pending    {p}")
+    print(f"records    {manifest['records']['CD']} challan, {manifest['records']['DD']} deductee")
+    print(f"rows       updated {manifest['updated_rows'] or '-'}  added {manifest['added_rows'] or '-'}"
+          f"  challans updated {manifest['challans_updated'] or '-'}")
+    print(f"file       {Path(args.out) / manifest['file']}  ({manifest['bytes']} bytes)")
+    print(f"short name {Path(args.out) / manifest['short_name_copy']}")
     return 0
 
 
@@ -232,6 +255,16 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("statement")
     s.add_argument("-o", "--out", required=True)
     s.set_defaults(func=cmd_build)
+
+    s = sub.add_parser("correct", help="write a Form 140 correction (C3/C5) with only the changed records")
+    s.add_argument("original", help="the statement document as it was filed")
+    s.add_argument("corrected", help="the same document with the corrections made, "
+                                     "and correction.original_token set to the PRN")
+    s.add_argument("-o", "--out", required=True)
+    s.add_argument("--type", default="", choices=["", "C3", "C5"],
+                   help="force the correction type (default: C5 for a PAN-only change, else C3)")
+    s.add_argument("--conso", default="", help="TRACES consolidated file (not readable; see the message)")
+    s.set_defaults(func=cmd_correct)
 
     s = sub.add_parser("fvu", help="run the official File Validation Utility")
     s.add_argument("txt")

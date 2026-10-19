@@ -101,6 +101,33 @@
       "page": "https://tinpan.proteantech.in/downloads/e-tds/eTDS-download-regular.html",
       "url": "https://tinpan.proteantech.in/downloads/e-tds/143.txt",
       "note": "TCS sample. Not yet used."
+    },
+    {
+      "kind": "format",
+      "name": "Correction File Format for Form Number 140 - 26Q - Q1 to Q4, Version 1.2 (04-08-2026)",
+      "version": "1.2",
+      "effective": "tax year 2026-27 onward",
+      "page": "https://tinpan.proteantech.in/downloads/e-tds/eTDS-download-corr.html",
+      "url": "https://tinpan.proteantech.in/downloads/e-tds/download/Form%20Number%20140-26Q%20-%20Q1%20to%20Q4_04082026_correction.xlsx",
+      "note": "sha256 e73d1402fff01b4aa92fa5c0ab35d79e79b87b3c4a0bc431e2074215abbb864b, downloaded 19-Oct-2026. The C3/C5 field sets in scripts/correct.py are read off this workbook."
+    },
+    {
+      "kind": "format",
+      "name": "Correction File Format for Form Number 138 - 24Q - Q1 to Q3, Version 1.2 (04-08-2026)",
+      "version": "1.2",
+      "effective": "tax year 2026-27 onward",
+      "page": "https://tinpan.proteantech.in/downloads/e-tds/eTDS-download-corr.html",
+      "url": "https://tinpan.proteantech.in/downloads/e-tds/download/Form%20Number%20138-24Q%20-%20Q1%20to%20Q3_04082026_correction.xlsx",
+      "note": "sha256 f5ca1d56946b7b3c94bd007d62abdd470307fe6f6e016e404f428ca386c7351b, downloaded 19-Oct-2026. Downloaded and recorded; not yet wired into tds correct, which writes Form 140 only."
+    },
+    {
+      "kind": "format",
+      "name": "Correction File Format for Form Number 144 - 27Q - Q1 to Q4, Version 1.2 (04-08-2026)",
+      "version": "1.2",
+      "effective": "tax year 2026-27 onward",
+      "page": "https://tinpan.proteantech.in/downloads/e-tds/eTDS-download-corr.html",
+      "url": "https://tinpan.proteantech.in/downloads/e-tds/download/Form%20Number%20144-27Q%20-%20Q1%20to%20Q4_04082026_Correction.xlsx",
+      "note": "sha256 418fbeb969be7acaac7707f937fe6f1fe43c07a099c09d901c999d00fed23738, downloaded 19-Oct-2026. Downloaded and recorded; not yet wired into tds correct, which writes Form 140 only."
     }
   ]
 }

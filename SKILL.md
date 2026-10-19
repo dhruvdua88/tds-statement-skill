@@ -135,6 +135,27 @@ validation.
 **Never upload.** Preparing a filing and filing it are different decisions, and
 the second one belongs to the person who signs.
 
+### Corrections
+
+```bash
+python3 scripts/tds.py correct filed.json corrected.json -o correction/
+```
+
+Start from the statement document as it was filed. Copy it, make the
+corrections in the copy, and set `correction.original_token` to the PRN of the
+regular statement (and `previous_token` to the last correction's PRN, if there
+was one). The tool compares the two documents and writes only the records that
+changed. It writes C5 when only PANs changed and C3 for everything else:
+deductee rows added or updated, PANs corrected, rows moved to another challan,
+and a challan's own figures updated. It refuses deductor changes (C1/C2),
+added challans (C9) and deleted rows, each with a plain reason.
+
+The TRACES consolidated (`.tds`) file cannot be read. Its layout for the new
+forms is not published, and guessing a layout is not an option here. The
+utility still needs its consolidated file hash (FH field 18, T-FV-1037), so put
+it in `correction.consolidated_hash`. Until it is there, the file is named
+`DRAFT_PENDING_HASH.txt`. Only Form 140 corrections are written so far.
+
 ## The document
 
 `statement.json` is the single source of truth. Run `tds schema` for the

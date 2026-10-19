@@ -509,7 +509,10 @@ form                 "140" (resident non-salary) or "138" (salary)
 upload_type          "R" original/regular, "C" correction
 financial_year       "2026-27"   -> tax_year 202627, assessment_year 202728
 quarter              "Q1".."Q4"
-correction           {"original_token": "...", "correction_type": "..."} when upload_type is C
+correction           when upload_type is C: {"original_token": PRN of the regular
+                     statement, "previous_token": PRN of the last correction (defaults
+                     to original_token), "consolidated_hash": FH 18 from TRACES,
+                     "file_creation_date": "DDMMYYYY"}; see 'tds correct'
 
 deductor             tan, pan, name, category (Annexure 4), address{},
                      email, country_code, phone, gstin,

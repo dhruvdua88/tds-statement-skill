@@ -141,10 +141,41 @@ def main() -> int:
     messy_workbook(FIX / "messy_source.xlsx")
     print(f"wrote {FIX / 'messy_source.xlsx'}")
 
+    (FIX / "correction_140.json").write_text(json.dumps(correction_140(), indent=2) + "\n")
+    print(f"wrote {FIX / 'correction_140.json'}")
     # example_138.json and example_144.json are maintained by hand: each pins
     # the form-only fields its layout tests check, and their golden files are
     # built from them, so this script leaves both alone.
     return 0
+
+
+def correction_140() -> dict:
+    """The 140 fixture as it should have been filed, for the correction tests.
+
+    Read against example_140.json it exercises each common correction: a PAN
+    corrected (row 4), a row updated (row 3, more paid and more deducted), a row
+    added (row 7), and the challan they sit under topped up to cover them.
+    The PRN and the consolidated hash are placeholders, as invented as the rest.
+    """
+    doc = statement_140()
+    doc["upload_type"] = "C"
+    doc["correction"] = {
+        "original_token": "123456789012345",
+        "previous_token": "123456789012345",
+        "consolidated_hash": "SYNTHETICHASH0001",
+        "file_creation_date": "19102026",
+    }
+    doc["challans"][1].update({"tax": "15000.00", "total": "15000.00"})
+    rows = doc["deductees"]
+    rows[2].update({"amount_paid": "120000.00", "tds": "12000.00"})
+    rows[3]["pan"] = "AAHPD3457M"
+    rows.append({
+        "challan_no": 2, "name": "SAMPLE LOGISTICS", "pan": "AAJFS2468P", "section": "1023",
+        "amount_paid": "100000.00", "tds": "1000.00", "rate": "1.0000",
+        "payment_date": "31-08-2026", "deduction_date": "31-08-2026",
+        "deposited": "Y", "source_ref": "correction fixture added row",
+    })
+    return doc
 
 
 if __name__ == "__main__":

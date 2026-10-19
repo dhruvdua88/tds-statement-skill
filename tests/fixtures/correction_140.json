@@ -1,0 +1,183 @@
+{
+  "schema": "tds-statement/1",
+  "form": "140",
+  "upload_type": "C",
+  "financial_year": "2026-27",
+  "quarter": "Q2",
+  "meta": {
+    "prepared_by": "Dhruv Dua & Co.",
+    "utility_name": "TDS Statement Skill 1.0",
+    "file_creation_date": "19102026",
+    "short_name": "EX140Q2.txt",
+    "note": "Synthetic fixture. Every identifier here is invented."
+  },
+  "deductor": {
+    "tan": "AAAA12345A",
+    "pan": "AAACA1234A",
+    "name": "SAMPLE WORKS PRIVATE LIMITED",
+    "category": "K",
+    "regular_earlier": "N",
+    "email": "accounts@example.in",
+    "country_code": "91",
+    "phone": "9810000000",
+    "gstin": "",
+    "address": {
+      "line1": "PLOT 1, INDUSTRIAL AREA",
+      "line2": "",
+      "line3": "PHASE II",
+      "line4": "SONEPAT",
+      "line5": "HARYANA",
+      "state_code": "12",
+      "pin": "131001",
+      "country": "INDIA"
+    }
+  },
+  "responsible_person": {
+    "name": "A DIRECTOR",
+    "designation": "DIRECTOR",
+    "pan": "AAAPA1234A",
+    "email": "director@example.in",
+    "country_code": "91",
+    "phone": "9810000001",
+    "address": {
+      "line1": "PLOT 1, INDUSTRIAL AREA",
+      "line2": "",
+      "line3": "PHASE II",
+      "line4": "SONEPAT",
+      "line5": "HARYANA",
+      "state_code": "12",
+      "pin": "131001",
+      "country": "INDIA"
+    }
+  },
+  "challans": [
+    {
+      "no": 1,
+      "bsr_code": "0180002",
+      "challan_serial": "90001",
+      "challan_date": "07-08-2026",
+      "tax": "45000.00",
+      "interest": "0.00",
+      "total": "45000.00"
+    },
+    {
+      "no": 2,
+      "bsr_code": "0180002",
+      "challan_serial": "90002",
+      "challan_date": "07-09-2026",
+      "tax": "15000.00",
+      "interest": "0.00",
+      "total": "15000.00"
+    },
+    {
+      "no": 3,
+      "bsr_code": "0180002",
+      "challan_serial": "90003",
+      "challan_date": "07-10-2026",
+      "tax": "31500.00",
+      "interest": "15.00",
+      "total": "31515.00"
+    }
+  ],
+  "deductees": [
+    {
+      "challan_no": 1,
+      "name": "SAMPLE INFRA PROJECTS PRIVATE LIMITED",
+      "pan": "AAECS1234K",
+      "section": "1023",
+      "amount_paid": "1500000.00",
+      "tds": "15000.00",
+      "rate": "1.0000",
+      "payment_date": "31-07-2026",
+      "deduction_date": "31-07-2026",
+      "deposited": "Y",
+      "source_ref": "fixture row 1"
+    },
+    {
+      "challan_no": 1,
+      "name": "EXAMPLE TRADERS",
+      "pan": "AABFE5678L",
+      "section": "1031",
+      "amount_paid": "30000000.00",
+      "tds": "30000.00",
+      "rate": "0.1000",
+      "payment_date": "31-07-2026",
+      "deduction_date": "31-07-2026",
+      "deposited": "Y",
+      "source_ref": "fixture row 2"
+    },
+    {
+      "challan_no": 2,
+      "name": "MEENAKSHI CONSULTING LLP",
+      "pan": "AAGFM9012N",
+      "section": "1027",
+      "amount_paid": "120000.00",
+      "tds": "12000.00",
+      "rate": "10.0000",
+      "payment_date": "31-08-2026",
+      "deduction_date": "31-08-2026",
+      "deposited": "Y",
+      "source_ref": "fixture row 3"
+    },
+    {
+      "challan_no": 2,
+      "name": "DEMO CARRIERS",
+      "pan": "AAHPD3457M",
+      "section": "1023",
+      "amount_paid": "200000.00",
+      "tds": "2000.00",
+      "rate": "1.0000",
+      "payment_date": "31-08-2026",
+      "deduction_date": "31-08-2026",
+      "deposited": "Y",
+      "source_ref": "fixture row 4"
+    },
+    {
+      "challan_no": 3,
+      "name": "MEENAKSHI CONSULTING LLP",
+      "pan": "AAGFM9012N",
+      "section": "1027",
+      "amount_paid": "150000.00",
+      "tds": "15000.00",
+      "rate": "10.0000",
+      "payment_date": "30-09-2026",
+      "deduction_date": "30-09-2026",
+      "deposited": "Y",
+      "source_ref": "fixture row 5"
+    },
+    {
+      "challan_no": 3,
+      "name": "SAMPLE INFRA PROJECTS PRIVATE LIMITED",
+      "pan": "AAECS1234K",
+      "section": "1023",
+      "amount_paid": "1650000.00",
+      "tds": "16500.00",
+      "rate": "1.0000",
+      "payment_date": "30-09-2026",
+      "deduction_date": "30-09-2026",
+      "deposited": "Y",
+      "source_ref": "fixture row 6"
+    },
+    {
+      "challan_no": 2,
+      "name": "SAMPLE LOGISTICS",
+      "pan": "AAJFS2468P",
+      "section": "1023",
+      "amount_paid": "100000.00",
+      "tds": "1000.00",
+      "rate": "1.0000",
+      "payment_date": "31-08-2026",
+      "deduction_date": "31-08-2026",
+      "deposited": "Y",
+      "source_ref": "correction fixture added row"
+    }
+  ],
+  "flags": [],
+  "pending": [],
+  "correction": {
+    "original_token": "123456789012345",
+    "previous_token": "123456789012345",
+    "consolidated_hash": "SYNTHETICHASH0001",
+    "file_creation_date": "19102026"
+  }
+}

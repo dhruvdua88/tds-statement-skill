@@ -37,6 +37,14 @@ def main() -> int:
         shutil.copy2(tmp / manifest["file"], target)
         print(f"{fixture.name} -> {target.relative_to(ROOT)}  sha256 {manifest['sha256'][:16]}...  "
               f"({manifest['bytes']} bytes, {manifest['records']['lines']} records)")
+    import correct
+    corrected = FIX / "correction_140.json"
+    if corrected.exists():
+        tmp = Path(tempfile.mkdtemp(prefix="tds-golden-"))
+        manifest = correct.write(Statement.load(FIX / "example_140.json"), Statement.load(corrected), tmp)
+        shutil.copy2(tmp / manifest["file"], GOLDEN / "correction_140.txt")
+        print(f"{corrected.name} -> tests/golden/correction_140.txt  {manifest['correction_type']}  "
+              f"({manifest['records']['lines']} records)")
     print("\nCommit the golden files together with the change that produced them.")
     return 0
 

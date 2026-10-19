@@ -140,6 +140,11 @@ verification keys, so they must repeat the original and cannot be updated.
 Corrections for periods before 1 April 2026 stay under the 1961 Act with the old
 form numbers, in their own two-year window.
 
+`tds correct` writes the C3 and C5 types for Form 140 from the filed statement
+document and a corrected copy (see SKILL.md). The consolidated file hash that
+the utility demands on a correction (T-FV-1037) comes from TRACES and has to be
+supplied; nothing here derives it.
+
 ## Form 27A
 
 Form 27A is the control chart for the physical TIN-FC route, where a signed
