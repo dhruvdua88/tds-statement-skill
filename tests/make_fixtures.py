@@ -141,39 +141,10 @@ def main() -> int:
     messy_workbook(FIX / "messy_source.xlsx")
     print(f"wrote {FIX / 'messy_source.xlsx'}")
 
-    try:
-        import layout138  # noqa: F401
-        (FIX / "example_138.json").write_text(json.dumps(statement_138(), indent=2) + "\n")
-        print(f"wrote {FIX / 'example_138.json'}")
-    except ImportError:
-        print("layout138 not present yet, skipped the salary fixture")
+    # example_138.json and example_144.json are maintained by hand: each pins
+    # the form-only fields its layout tests check, and their golden files are
+    # built from them, so this script leaves both alone.
     return 0
-
-
-def statement_138() -> dict:
-    """Salary statement fixture. Only 1002 rows, no rate is quoted."""
-    base = statement_140()
-    base["form"] = "138"
-    base["meta"]["short_name"] = "EX138Q2.txt"
-    rows = [
-        ("A WORKER", "AAKPA1234A", "500000.00", "0.00"),
-        ("B EMPLOYEE", "AALPB5678B", "820000.00", "12000.00"),
-        ("C MANAGER", "AAMPC9012C", "1400000.00", "96000.00"),
-    ]
-    base["challans"] = [
-        {"no": 1, "bsr_code": "0180002", "challan_serial": "90010",
-         "challan_date": "07-09-2026", "tax": "108000.00", "interest": "0.00", "total": "108000.00"},
-    ]
-    base["deductees"] = [
-        {
-            "challan_no": 1, "name": n, "pan": p, "section": "1002",
-            "amount_paid": amt, "tds": tds, "rate": "",
-            "payment_date": "31-08-2026", "deduction_date": "31-08-2026",
-            "deposited": "Y", "source_ref": f"salary fixture row {i + 1}",
-        }
-        for i, (n, p, amt, tds) in enumerate(rows)
-    ]
-    return base
 
 
 if __name__ == "__main__":

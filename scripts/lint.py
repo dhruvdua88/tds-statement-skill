@@ -342,11 +342,12 @@ def model_issues(st: Statement) -> list[Issue]:
 
         if st.form == "138":
             if row.section not in codes.SALARY_SECTIONS:
-                add(ERROR, "SECTION", f"a salary statement uses section 1002 only, got {row.section!r}", ref)
+                add(ERROR, "SECTION", "a salary statement uses sections "
+                    + ", ".join(sorted(codes.SALARY_SECTIONS)) + f" only, got {row.section!r}", ref)
         elif row.section in codes.SALARY_SECTIONS:
-            add(ERROR, "SECTION", "section 1002 is salary and does not belong on a non-salary statement", ref)
-        elif row.section not in codes.SECTIONS:
-            add(unknown, "SECTION", f"section code {row.section!r} is not in Annexure 2", ref)
+            add(ERROR, "SECTION", f"section {row.section} is salary and does not belong on a non-salary statement", ref)
+        elif row.section not in codes.sections_for_form(st.form):
+            add(unknown, "SECTION", f"section code {row.section!r} is not in Form {st.form}'s Annexure 2", ref)
 
         if row.reason_code and row.reason_code not in codes.REASON_CODES:
             add(unknown, "REASON_CODE", f"reason flag {row.reason_code!r} is not in Annexure 6", ref)

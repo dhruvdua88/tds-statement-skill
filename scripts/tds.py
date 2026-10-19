@@ -28,7 +28,11 @@ HERE = Path(__file__).resolve().parent
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
-from model import SCHEMA_HELP, Statement  # noqa: E402
+from model import SCHEMA_HELP, SUPPORTED_FORMS, Statement  # noqa: E402
+
+# Only forms that actually build are offered, so the CLI cannot promise one it
+# would then refuse.
+FORM_CHOICES = list(SUPPORTED_FORMS)
 
 
 def cmd_intake(args) -> int:
@@ -210,7 +214,7 @@ def main(argv: list[str] | None = None) -> int:
     s = sub.add_parser("intake", help="read source files into the statement document")
     s.add_argument("sources", nargs="+")
     s.add_argument("-o", "--out", required=True, help="statement JSON to write")
-    s.add_argument("--form", default="140", choices=["138", "140", "144"])
+    s.add_argument("--form", default="140", choices=FORM_CHOICES)
     s.add_argument("--fy", default="", help="financial year, e.g. 2026-27")
     s.add_argument("--quarter", default="", help="Q1..Q4")
     s.add_argument("--report", default="", help="mapping report workbook to write")

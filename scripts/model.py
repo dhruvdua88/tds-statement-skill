@@ -66,8 +66,8 @@ class ModelError(ValueError):
 # layout module exists and has been checked against the department's own
 # file-format workbook; until then intake, lint and build refuse it with a plain
 # message instead of failing somewhere inside the builder.
-SUPPORTED_FORMS = ("140",)
-NOT_YET_ADDED = ("138", "144")
+SUPPORTED_FORMS = ("140", "138", "144")
+NOT_YET_ADDED = ()
 
 
 def check_form(form) -> str:

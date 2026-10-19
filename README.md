@@ -4,7 +4,9 @@ Build Indian quarterly TDS statements from whatever the client sent, validate
 them with the official utility, and hand over an upload-ready folder.
 
 Under the Income-tax Act, 2025 the quarterly statements are **Form 140**
-(resident non-salary, earlier 26Q) and **Form 138** (salary, earlier 24Q).
+(resident non-salary, earlier 26Q), **Form 138** (salary, earlier 24Q; Q1 to
+Q3 for now, because the Q4 file format is not published yet) and **Form 144**
+(payments to non-residents, earlier 27Q).
 Statements are filed on the e-filing portal as a `.fvu` file that the
 department's File Validation Utility has produced. This toolkit writes the
 statement text file in the prescribed layout, checks it, runs the official

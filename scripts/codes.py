@@ -21,10 +21,10 @@ from pathlib import Path
 
 ASSET = Path(__file__).resolve().parent.parent / "assets" / "annexures.json"
 
-# Sections that may only appear on a salary statement (Form 138). Salary code
-# 1002 is deliberately absent from Annexure 2 of Form 140, so a non-salary
-# statement carrying it is wrong.
-SALARY_SECTIONS = {"1002"}
+# Sections that may only appear on a salary statement: Annexure 2 of the Form
+# 138 workbook (22-Jul-2026) lists exactly these four. None of them is in Annexure
+# 2 of Form 140, so a non-salary statement carrying one is wrong.
+SALARY_SECTIONS = {"1001", "1002", "1003", "1032"}
 
 # Sections the official remarks single out: the tax was paid before release, so
 # the deductee PAN may not be a placeholder, the tax columns must be zero and
@@ -115,9 +115,17 @@ SOURCE: dict = DATA.get("source", {})
 
 TABLES_COMPLETE = not MISSING_TABLES
 
+# Form 144 has its own Annexure 2 (code 1004 and codes 1039 to 1067), extracted
+# from the Form 144 workbook by ``extract_annexures.py --form144``.
+ASSET_144 = ASSET.parent / "annexures_144.json"
+SECTIONS_144: dict[str, dict] = (
+    json.loads(ASSET_144.read_text(encoding="utf-8")).get("sections", {})
+    if ASSET_144.exists() else {}
+)
+
 
 def section_label(code: str) -> str:
-    meta = SECTIONS.get(code)
+    meta = SECTIONS.get(code) or SECTIONS_144.get(code)
     return meta["description"] if meta else f"unknown section code {code}"
 
 
@@ -139,9 +147,11 @@ def state_code(name: str) -> str:
 
 
 def sections_for_form(form: str) -> dict[str, dict]:
-    """Form 138 is salary only; Form 140 uses the rest of Annexure 2."""
+    """Form 138 is salary only; Form 144 has its own table; Form 140 uses the rest."""
     if form == "138":
         return {k: v for k, v in SECTIONS.items() if k in SALARY_SECTIONS}
+    if form == "144":
+        return SECTIONS_144
     return {k: v for k, v in SECTIONS.items() if k not in SALARY_SECTIONS}
 
 

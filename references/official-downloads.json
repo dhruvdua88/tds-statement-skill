@@ -46,7 +46,7 @@
       "effective": "tax year 2026-27 onward",
       "page": "https://tinpan.proteantech.in/downloads/e-tds/eTDS-download-regular.html",
       "url": "https://tinpan.proteantech.in/downloads/e-tds/Form%20Number%20138-24Q%20-%20Q1%20to%20Q3_22072026.xlsx",
-      "note": "Q1 to Q3 only. The Q4 (Annexure II, including the salary detail records) workbook is not yet published, so the Q4 record set is assembled from the FVU codes and the legacy 24Q table. Sheet name 'File Format_R'."
+      "note": "Q1 to Q3 only. The workbook every field number in layout138.py is taken from (sha256 d58fd86b69932c6a7a4f518990c17d2112f55c65042d9c3bf2799ed201cbaf6c, re-downloaded and compared 19-Oct-2026). The Q4 (Annexure II, salary detail records) workbook is not yet published, so layout138 refuses a Q4 build rather than guess. Sheet name 'File Format_R'."
     },
     {
       "kind": "format",
@@ -55,7 +55,7 @@
       "effective": "tax year 2026-27 onward",
       "page": "https://tinpan.proteantech.in/downloads/e-tds/eTDS-download-regular.html",
       "url": "https://tinpan.proteantech.in/downloads/e-tds/Form%20Number%20144-27Q%20-%20Q1%20to%20Q4_22072026.xlsx",
-      "note": "Non-resident payments. Sheet name 'FIleformat_R' (the capitalisation differs from the 138/140 workbooks)."
+      "note": "Non-resident payments. The workbook layout144.py, assets/annexures_144.json and references/form-144-layout.md are taken from (sha256 5e78534c065133936a4bb594f310c10a44e25a0825fe9f7ff023b342730fd5da, re-downloaded and compared 19-Oct-2026). Sheet name 'FIleformat_R' (the capitalisation differs from the 138/140 workbooks)."
     },
     {
       "kind": "format",

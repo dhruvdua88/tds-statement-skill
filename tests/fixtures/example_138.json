@@ -1,0 +1,142 @@
+{
+  "schema": "tds-statement/1",
+  "form": "138",
+  "upload_type": "R",
+  "financial_year": "2026-27",
+  "quarter": "Q2",
+  "meta": {
+    "prepared_by": "Dhruv Dua & Co.",
+    "utility_name": "TDS Statement Skill 1.0",
+    "file_creation_date": "19102026",
+    "short_name": "EX138Q2.txt",
+    "note": "Synthetic fixture. Every identifier here is invented."
+  },
+  "deductor": {
+    "tan": "AAAA12345A",
+    "pan": "AAACA1234A",
+    "name": "SAMPLE WORKS PRIVATE LIMITED",
+    "category": "K",
+    "regular_earlier": "N",
+    "email": "accounts@example.in",
+    "country_code": "91",
+    "phone": "9810000000",
+    "gstin": "",
+    "address": {
+      "line1": "PLOT 1, INDUSTRIAL AREA",
+      "line2": "",
+      "line3": "PHASE II",
+      "line4": "SONEPAT",
+      "line5": "HARYANA",
+      "state_code": "12",
+      "pin": "131001",
+      "country": "INDIA"
+    }
+  },
+  "responsible_person": {
+    "name": "A DIRECTOR",
+    "designation": "DIRECTOR",
+    "pan": "AAAPA1234A",
+    "email": "director@example.in",
+    "country_code": "91",
+    "phone": "9810000001",
+    "address": {
+      "line1": "PLOT 1, INDUSTRIAL AREA",
+      "line2": "",
+      "line3": "PHASE II",
+      "line4": "SONEPAT",
+      "line5": "HARYANA",
+      "state_code": "12",
+      "pin": "131001",
+      "country": "INDIA"
+    }
+  },
+  "challans": [
+    {
+      "no": 1,
+      "bsr_code": "0180002",
+      "challan_serial": "90011",
+      "challan_date": "07-08-2026",
+      "tax": "19240.00",
+      "interest": "0.00",
+      "total": "19240.00"
+    },
+    {
+      "no": 2,
+      "bsr_code": "0180002",
+      "challan_serial": "90012",
+      "challan_date": "07-09-2026",
+      "tax": "9568.00",
+      "interest": "0.00",
+      "total": "9568.00"
+    }
+  ],
+  "deductees": [
+    {
+      "challan_no": 1,
+      "name": "RAJESH KUMAR SHARMA",
+      "pan": "ABKPS1234A",
+      "section": "1002",
+      "amount_paid": "95000.00",
+      "tds": "4200.00",
+      "cess": "168.00",
+      "payment_date": "31-07-2026",
+      "deduction_date": "31-07-2026",
+      "deposited": "Y",
+      "source_ref": "fixture row 1"
+    },
+    {
+      "challan_no": 1,
+      "name": "PRIYA NAIR",
+      "pan": "BCDPN2345B",
+      "section": "1002",
+      "amount_paid": "145000.00",
+      "tds": "12500.00",
+      "cess": "500.00",
+      "payment_date": "31-07-2026",
+      "deduction_date": "31-07-2026",
+      "deposited": "Y",
+      "source_ref": "fixture row 2"
+    },
+    {
+      "challan_no": 1,
+      "name": "MOHAMMED IRFAN",
+      "pan": "CDEPI3456C",
+      "section": "1002",
+      "amount_paid": "72000.00",
+      "tds": "1800.00",
+      "cess": "72.00",
+      "payment_date": "31-07-2026",
+      "deduction_date": "31-07-2026",
+      "deposited": "Y",
+      "source_ref": "fixture row 3"
+    },
+    {
+      "challan_no": 2,
+      "name": "ANITA DESAI",
+      "pan": "DEFPD4567D",
+      "section": "1002",
+      "amount_paid": "110000.00",
+      "tds": "8300.00",
+      "cess": "332.00",
+      "payment_date": "31-08-2026",
+      "deduction_date": "31-08-2026",
+      "deposited": "Y",
+      "source_ref": "fixture row 4"
+    },
+    {
+      "challan_no": 2,
+      "name": "VIKRAM SINGH RATHORE",
+      "pan": "EFGPR5678E",
+      "section": "1002",
+      "amount_paid": "60000.00",
+      "tds": "900.00",
+      "cess": "36.00",
+      "payment_date": "31-08-2026",
+      "deduction_date": "31-08-2026",
+      "deposited": "Y",
+      "source_ref": "fixture row 5"
+    }
+  ],
+  "flags": [],
+  "pending": []
+}

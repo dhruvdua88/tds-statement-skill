@@ -322,25 +322,33 @@ class TestCli(unittest.TestCase):
         self.assertEqual(out.returncode, 0)
         self.assertIn("tds-statement/1", out.stdout)
 
-    def test_forms_without_a_layout_are_refused_in_one_line(self):
+    def test_every_form_the_cli_offers_has_a_layout_and_a_golden_file(self):
+        import importlib
+        import tds
+        self.assertEqual(sorted(tds.FORM_CHOICES), ["138", "140", "144"])
+        for form in tds.FORM_CHOICES:
+            layout = importlib.import_module(build_txt.LAYOUT_MODULES[form])
+            self.assertEqual(layout.FORM, form)
+            fixture = FIX / f"example_{form}.json"
+            golden = GOLDEN / f"example_{form}.txt"
+            self.assertTrue(fixture.exists() and golden.exists(), form)
+            tmp = Path(tempfile.mkdtemp(prefix="tds-golden-"))
+            manifest = build_txt.write(Statement.load(fixture), tmp)
+            self.assertEqual((tmp / manifest["file"]).read_bytes(), golden.read_bytes(), form)
+
+    def test_a_form_without_a_layout_is_refused_in_one_line(self):
         tmp = Path(tempfile.mkdtemp(prefix="tds-cli-"))
         doc = json.loads((FIX / "example_140.json").read_text())
-        for form in ("138", "144"):
-            doc["form"] = form
-            path = tmp / f"st{form}.json"
-            path.write_text(json.dumps(doc))
-            runs = [
-                ["intake", str(FIX / "messy_source.xlsx"), "-o", str(tmp / "x.json"), "--form", form],
-                ["lint", str(path)],
-                ["build", str(path), "-o", str(tmp / "b")],
-            ]
-            for argv in runs:
-                out = subprocess.run([sys.executable, str(SCRIPTS / "tds.py"), *argv],
-                                     capture_output=True, text=True)
-                self.assertNotEqual(out.returncode, 0, argv)
-                self.assertIn(f"Form {form} layout not yet added", out.stderr, argv)
-                self.assertNotIn("Traceback", out.stderr, argv)
-                self.assertEqual(len(out.stderr.strip().splitlines()), 1, out.stderr)
+        doc["form"] = "143"
+        path = tmp / "st143.json"
+        path.write_text(json.dumps(doc))
+        for argv in (["lint", str(path)], ["build", str(path), "-o", str(tmp / "b")]):
+            out = subprocess.run([sys.executable, str(SCRIPTS / "tds.py"), *argv],
+                                 capture_output=True, text=True)
+            self.assertNotEqual(out.returncode, 0, argv)
+            self.assertIn("unsupported form '143'", out.stderr, argv)
+            self.assertNotIn("Traceback", out.stderr, argv)
+            self.assertEqual(len(out.stderr.strip().splitlines()), 1, out.stderr)
 
     def test_build_and_lint_via_cli(self):
         tmp = Path(tempfile.mkdtemp(prefix="tds-cli-"))

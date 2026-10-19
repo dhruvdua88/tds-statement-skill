@@ -163,10 +163,18 @@ spreadsheets reorder dates and lose paise, and the utility rejects both.
 | Tax year 2026-27 onward | 138 | 140 | 144 |
 
 Salary and non-salary are separate statements, in separate files, with separate
-tokens. Do not combine them. Read `references/form-140-layout.md` for the field
-tables. This copy writes Form 140 only: intake, lint and build refuse Forms 138
-and 144 with "Form 138 layout not yet added" (or 144) until their layout modules
-are added from the department's own file-format workbooks.
+tokens. Do not combine them. Read `references/form-140-layout.md`,
+`references/form-138-layout.md` or `references/form-144-layout.md` for the field
+tables of whichever you are building. Each layout module is taken from the
+department's own file-format workbook (version 1.2, 22-Jul-2026), named in the
+module's header.
+
+Form 138 is written for Q1 to Q3 only. Q4 also needs the salary-detail records
+of Annexure II, and the department has not published that workbook yet, so a Q4
+build stops with an explanation instead of writing a file the utility rejects.
+Form 144 needs ten non-resident figures per deductee (status, country, nature of
+remittance, grossing up, rate basis and the like) that the statement document
+carries in `meta.non_resident`, keyed by PAN; see the layout reference.
 
 ## What to ask the client for
 
@@ -215,6 +223,8 @@ that are easy to get wrong:
 
 - `references/form-140-layout.md` - the field-by-field layout for the resident
   non-salary statement, with the official remarks.
+- `references/form-138-layout.md` - the same for the salary statement (Q1 to Q3).
+- `references/form-144-layout.md` - the same for the non-resident statement.
 - `references/section-codes.md` - the section codes, state codes, deductor
   categories, reason codes and minor heads.
 - `references/fvu-runbook.md` - running the utility, the error file format, the

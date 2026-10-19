@@ -604,11 +604,13 @@ def intake(sources: list[str], form: str = "140", financial_year: str = "",
             "owner": "us", "blocking": True,
         })
 
-    # The salary statement only ever carries section 1002. Anything else is a
-    # mapping mistake, so it is corrected here rather than at the utility.
+    # The salary statement carries only the four salary codes of its Annexure 2.
+    # Anything else is a mapping mistake; 1002 (employees other than Government
+    # employees) is by far the usual one, so the row is set to it and says so.
     if form == "138":
+        from codes import SALARY_SECTIONS
         for row in st.deductees:
-            if row.section != "1002":
+            if row.section not in SALARY_SECTIONS:
                 row.section = "1002"
                 row.rate = ""
                 row.remarks = (row.remarks + " section forced to 1002 for the salary form").strip()

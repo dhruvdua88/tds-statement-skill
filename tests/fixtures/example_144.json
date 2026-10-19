@@ -1,0 +1,192 @@
+{
+  "schema": "tds-statement/1",
+  "form": "144",
+  "upload_type": "R",
+  "financial_year": "2026-27",
+  "quarter": "Q2",
+  "meta": {
+    "prepared_by": "Dhruv Dua & Co.",
+    "utility_name": "TDS Statement Skill 1.0",
+    "file_creation_date": "19102026",
+    "short_name": "EX144Q2.txt",
+    "note": "Synthetic fixture for Form 144 (payments to non-residents). Every identifier here is invented. The ten Form 144-only figures of the deductee record travel in meta.non_resident, keyed by the deductee PAN in capitals; see references/form-144-layout.md.",
+    "non_resident": {
+      "AACCZ4321R": {
+        "status": "1",
+        "opting_out": "N",
+        "nature_of_remittance": "27",
+        "country_code": "175",
+        "grossed_up": "N",
+        "rate_basis": "A",
+        "address_abroad": "HOOFDWEG 12, 1096 AC AMSTERDAM",
+        "email": "tax@zuiderzee.example",
+        "phone": "31201234567",
+        "tin": "NL812345678B01"
+      },
+      "AABCM7654N": {
+        "status": "1",
+        "opting_out": "N",
+        "nature_of_remittance": "49",
+        "country_code": "221",
+        "grossed_up": "N",
+        "rate_basis": "B",
+        "address_abroad": "8 MARINA BOULEVARD, #32-01, SINGAPORE 018981",
+        "email": "accounts@merliontech.example",
+        "phone": "6561234567",
+        "tin": "200812345K"
+      },
+      "AADCP2468L": {
+        "status": "1",
+        "opting_out": "N",
+        "nature_of_remittance": "27",
+        "country_code": "267",
+        "grossed_up": "N",
+        "rate_basis": "A"
+      },
+      "AAFCT1357M": {
+        "status": "1",
+        "opting_out": "N",
+        "nature_of_remittance": "21",
+        "country_code": "265",
+        "grossed_up": "N",
+        "rate_basis": "B",
+        "address_abroad": "12 THREADNEEDLE STREET, LONDON EC2R 8AY",
+        "email": "finance@thamesadvisory.example",
+        "phone": "442071234567",
+        "tin": "GB123456789"
+      }
+    }
+  },
+  "deductor": {
+    "tan": "MUMX13579C",
+    "pan": "AABCC1234D",
+    "name": "SAMPLE EXPORTS PRIVATE LIMITED",
+    "category": "K",
+    "regular_earlier": "N",
+    "email": "accounts@sampleexports.in",
+    "country_code": "91",
+    "phone": "02212345678",
+    "gstin": "27AABCC1234D1ZU",
+    "address": {
+      "line1": "UNIT 4, PRABHADEVI INDUSTRIAL ESTATE",
+      "line2": "OFF VEER SAVARKAR MARG",
+      "line3": "PRABHADEVI",
+      "line4": "MUMBAI",
+      "line5": "MAHARASHTRA",
+      "state_code": "19",
+      "pin": "400025",
+      "country": "INDIA"
+    }
+  },
+  "responsible_person": {
+    "name": "A K SAMPLE",
+    "designation": "DIRECTOR",
+    "pan": "AAAPA1234A",
+    "email": "director@sampleexports.in",
+    "country_code": "91",
+    "phone": "9810000002",
+    "address": {
+      "line1": "UNIT 4, PRABHADEVI INDUSTRIAL ESTATE",
+      "line2": "OFF VEER SAVARKAR MARG",
+      "line3": "PRABHADEVI",
+      "line4": "MUMBAI",
+      "line5": "MAHARASHTRA",
+      "state_code": "19",
+      "pin": "400025",
+      "country": "INDIA"
+    }
+  },
+  "challans": [
+    {
+      "no": 1,
+      "bsr_code": "0510308",
+      "challan_serial": "00021",
+      "challan_date": "07-08-2026",
+      "minor_head": "200",
+      "nature": "C",
+      "tax": "566276.00",
+      "interest": "0.00",
+      "fee": "0.00",
+      "penalty": "0.00",
+      "total": "566276.00",
+      "remarks": "Tax on the two July payments, deposited 07-08-2026 by bank challan. The rows come to 566275.50, so the challan was paid at the whole rupee above it."
+    },
+    {
+      "no": 2,
+      "bsr_code": "0510308",
+      "challan_serial": "00022",
+      "challan_date": "12-10-2026",
+      "minor_head": "200",
+      "nature": "C",
+      "tax": "340000.00",
+      "interest": "3400.00",
+      "fee": "0.00",
+      "penalty": "0.00",
+      "total": "343400.00",
+      "remarks": "Tax on the two August payments, deposited 12-10-2026, after the 07-10-2026 due date, so it carries one month of interest. A Q2 challan may be paid after the quarter closes."
+    }
+  ],
+  "deductees": [
+    {
+      "challan_no": 1,
+      "name": "ZUIDERZEE HOLDINGS B.V.",
+      "pan": "AACCZ4321R",
+      "section": "1042",
+      "amount_paid": "6325510.00",
+      "tds": "316275.50",
+      "rate": "5.0000",
+      "payment_date": "31-07-2026",
+      "deduction_date": "31-07-2026",
+      "deposited": "Y",
+      "remarks": "Interest on an external commercial borrowing, the rate section that was 194LC (Annexure 2 code 1042, section 393(2) Table Sl. No. 4.E(a)). The half rupee in the tax is deliberate: the deductee record allows paise, the challan record does not.",
+      "source_ref": "fixture row 1"
+    },
+    {
+      "challan_no": 1,
+      "name": "MERLION TECHNOLOGIES PTE LTD",
+      "pan": "AABCM7654N",
+      "section": "1057",
+      "amount_paid": "2500000.00",
+      "tds": "250000.00",
+      "rate": "10.0000",
+      "payment_date": "31-07-2026",
+      "deduction_date": "31-07-2026",
+      "deposited": "Y",
+      "form121": "SYNTHETIC15CA0000000000001",
+      "remarks": "Royalty at the treaty rate with Singapore, claimed on the basis of the agreement, hence rate basis B. Annexure 2 code 1057 is the residual bucket for interest and other sums, and the nature of remittance is what identifies this row as royalty.",
+      "source_ref": "fixture row 2"
+    },
+    {
+      "challan_no": 2,
+      "name": "PRAIRIE CAPITAL LLC",
+      "pan": "AADCP2468L",
+      "section": "1044",
+      "amount_paid": "800000.00",
+      "tds": "40000.00",
+      "rate": "5.0000",
+      "payment_date": "31-08-2026",
+      "deduction_date": "31-08-2026",
+      "deposited": "Y",
+      "remarks": "Interest from an infrastructure debt fund payable to a non-resident, the rate section that was 194LB (Annexure 2 code 1044). This row carries no foreign address, e-mail, contact number or TIN, which is the case the blank-instead-of-guessed rule exists for.",
+      "source_ref": "fixture row 3"
+    },
+    {
+      "challan_no": 2,
+      "name": "THAMES ADVISORY SERVICES LIMITED",
+      "pan": "AAFCT1357M",
+      "section": "1057",
+      "amount_paid": "4000000.00",
+      "tds": "300000.00",
+      "rate": "7.5000",
+      "payment_date": "31-08-2026",
+      "deduction_date": "31-08-2026",
+      "deposited": "Y",
+      "reason_code": "A",
+      "certificate_no": "TRACESLDC705210",
+      "remarks": "Fees for technical services at the rate certified under section 395(1); the reason flag A brings the certificate number with it. Annexure 2 code 1057 again, under the FTS nature of remittance.",
+      "source_ref": "fixture row 4"
+    }
+  ],
+  "flags": [],
+  "pending": []
+}
