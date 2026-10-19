@@ -442,6 +442,26 @@ def model_issues(st: Statement) -> list[Issue]:
                     f"section {row.section} implies about {expected_tax} on {row.amount_paid} "
                     f"but {actual} was deducted (difference {actual - expected_tax})", ref)
 
+        # Section 397(2): without a valid PAN the tax is deducted at the floor
+        # rate or more. A missing PAN, a placeholder, or a PAN TRACES reports as
+        # inoperative or invalid, deducted below that floor, is short.
+        no_pan = not row.pan or row.pan_is_placeholder
+        bad_status = row.pan_status_traces in ("inoperative", "invalid")
+        floor = codes.no_pan_rate(st.form, row.section)
+        if (no_pan or bad_status) and floor is not None and row.amount_paid > 0 and not special:
+            effective = (row.total_tds * 100 / row.amount_paid).quantize(Decimal("0.01"))
+            if effective < floor:
+                if no_pan:
+                    add(WARN, "NO_PAN_RATE",
+                        f"no valid PAN ({row.pan or 'blank'}) but tax is {effective}% of the amount, "
+                        f"below the {floor}% that {codes.CITE_NO_PAN} requires", ref)
+                else:
+                    add(WARN, "PAN_" + row.pan_status_traces.upper(),
+                        f"TRACES reports PAN {row.pan} as {row.pan_status_traces} but tax is "
+                        f"{effective}%, below the {floor}% of {codes.CITE_NO_PAN} for a PAN not "
+                        "validly furnished [verify: inoperative-PAN treatment under the 2025 Act and Rules]",
+                        ref)
+
         dkey = (row.pan, str(row.amount_paid), str(row.tds))
         if row.pan and dkey in seen_rows:
             add(WARN, "POSSIBLE_DUPLICATE", f"same PAN, amount and tax as {seen_rows[dkey]}", ref)

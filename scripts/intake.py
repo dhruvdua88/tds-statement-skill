@@ -53,6 +53,8 @@ SYNONYMS: dict[str, list[str]] = {
     "challan_tax": ["challan amount", "amount deposited", "deposit amount", "challan tax"],
     "month": ["month", "period", "month/year", "tds month"],
     "remarks": ["remark", "remarks", "comment", "comments", "note", "notes"],
+    "pan_status": ["pan status from traces", "pan status", "traces pan status",
+                   "pan verification status"],
 }
 
 # Section text -> 4-digit return section code. Longest phrase first so that
@@ -224,6 +226,18 @@ def cell_money(value) -> Decimal:
     return (-v if neg else v).quantize(Decimal("0.01"))
 
 
+def cell_pan_status(value) -> str:
+    """TRACES wording varies ("Valid", "Active", "Inoperative PAN", "Invalid PAN")."""
+    low = normalise(value)
+    if "inoperative" in low:
+        return "inoperative"
+    if "invalid" in low or "not valid" in low:
+        return "invalid"
+    if "valid" in low or "active" in low or "operative" in low:
+        return "valid"
+    return ""
+
+
 def cell_section(value) -> str:
     s = str(value or "").strip()
     if re.fullmatch(r"\d{4}", s):
@@ -290,6 +304,7 @@ def extract_rows(rows: list[list], header_row: int, columns: list[Column],
             "deduction_date": cell_date(get("deduction_date")),
             "challan_serial": str(get("challan") or "").strip(),
             "remarks": str(get("remarks") or "").strip(),
+            "pan_status_traces": cell_pan_status(get("pan_status")),
             "month_context": month_ctx,
         }
         if not rec["payment_date"]:
@@ -591,6 +606,7 @@ def intake(sources: list[str], form: str = "140", financial_year: str = "",
             "payment_date": rec["payment_date"], "deduction_date": rec["deduction_date"],
             "amount_paid": rec["amount_paid"], "tds": rec["tds"], "rate": rec["rate"],
             "remarks": rec["remarks"], "source_ref": rec["source_ref"],
+            "pan_status_traces": rec["pan_status_traces"],
         })
         st.deductees.append(row)
 

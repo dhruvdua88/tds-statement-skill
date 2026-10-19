@@ -71,6 +71,13 @@ value as a blocking pending item, which is what makes the output a draft.
 python3 scripts/tds.py lint statement.json
 ```
 
+Two PAN checks go beyond the format. A row with no PAN or a placeholder
+(PANNOTAVBL and the like) deducted below the rate that s.397(2) requires
+(20%, or 5% for codes 1031 and 1035, the old s.206AA) is a warning. If the
+source has a "PAN status from TRACES" column (valid / inoperative / invalid),
+intake reads it, and an inoperative or invalid PAN deducted at the normal rate
+is a warning as well.
+
 Errors are things the utility will reject or the filing will be wrong. Warnings
 are things a person should look at. Read every warning; the rate-deviation and
 duplicate warnings in particular are usually real and usually need a client

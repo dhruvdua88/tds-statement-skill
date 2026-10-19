@@ -261,6 +261,9 @@ class Deductee:
     cash_withdrawal_3cr: Decimal = Decimal("0.00")
     remarks: str = ""
     source_ref: str = ""
+    # The PAN's status as TRACES reports it (PAN verification / default reports):
+    # "valid", "inoperative" or "invalid". Blank when nobody has checked.
+    pan_status_traces: str = ""
     # Salary-only fields, kept optional so one model serves both forms.
     salary_income: Decimal | None = None
     total_income: Decimal | None = None
@@ -313,6 +316,7 @@ class Deductee:
             cash_withdrawal_3cr=d(raw.get("cash_withdrawal_3cr"), "cash withdrawal over 3 crore"),
             remarks=str(raw.get("remarks", "") or ""),
             source_ref=str(raw.get("source_ref", "") or ""),
+            pan_status_traces=str(raw.get("pan_status_traces", "") or "").strip().lower(),
         )
         for key in ("salary_income", "total_income", "net_tax"):
             if raw.get(key) not in (None, ""):
@@ -333,6 +337,8 @@ class Deductee:
             "cash_withdrawal_3cr": money_str(self.cash_withdrawal_3cr),
             "remarks": self.remarks, "source_ref": self.source_ref,
         }
+        if self.pan_status_traces:
+            out["pan_status_traces"] = self.pan_status_traces
         for key in ("salary_income", "total_income", "net_tax"):
             val = getattr(self, key)
             if val is not None:
@@ -529,7 +535,8 @@ deductees[]          challan_no, pan, name, section, payment_date,
                      deduction_date, amount_paid, tds, surcharge, cess,
                      rate, deposited ("Y"/"N"), reason_code (Annexure 6),
                      certificate_no, form121, cash_withdrawal_1cr,
-                     cash_withdrawal_3cr, remarks, source_ref
+                     cash_withdrawal_3cr, remarks, source_ref,
+                     pan_status_traces ("valid"/"inoperative"/"invalid", optional)
                      salary form only: salary_income, total_income, net_tax
 
 flags[]              {"level": "warn|error", "code": "...", "message": "...", "rows": [...]}
