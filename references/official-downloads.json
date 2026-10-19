@@ -1,0 +1,106 @@
+{
+  "checked_on": "2026-10-19",
+  "page": "https://tinpan.proteantech.in/downloads/e-tds/eTDS-download-regular.html",
+  "note": "Protean (TIN) publishes these free of charge. Nothing here is redistributed with the skill; 'tds fetch-official --url <url>' downloads on demand and records a checksum. Always open the live page before a filing season, because a statement validated by an old utility can still be rejected by the portal.",
+  "packages": [
+    {
+      "kind": "fvu",
+      "name": "e-TDS/TCS File Validation Utility, standalone (TDS_STANDALONE_FVU_1.2.zip)",
+      "version": "1.2",
+      "effective": "tax year 2026-27 onward",
+      "page": "https://tinpan.proteantech.in/downloads/e-tds/eTDS-download-regular.html",
+      "url": "https://tinpan.proteantech.in/downloads/e-tds/download/TDS_STANDALONE_FVU_1.2.zip",
+      "note": "The current utility, and the one this skill targets. It is a desktop application: on macOS it only runs inside the logged-in GUI session (see references/fvu-runbook.md). Java 8+ required."
+    },
+    {
+      "kind": "fvu",
+      "name": "e-TDS/TCS File Validation Utility, standalone (TDS_STANDALONE_FVU_9.5.zip)",
+      "version": "9.5",
+      "effective": "earlier tax years",
+      "page": "https://tinpan.proteantech.in/downloads/e-tds/eTDS-download-regular.html",
+      "url": "https://tinpan.proteantech.in/downloads/e-tds/download/TDS_STANDALONE_FVU_9.5.zip",
+      "note": "For legacy 24Q/26Q/27Q/27EQ statements. Not used for the new Form 138/140/143/144 filings."
+    },
+    {
+      "kind": "rpu",
+      "name": "e-TDS/TCS Return Preparation Utility (TDS_RPU_1.2.zip)",
+      "version": "1.2",
+      "effective": "tax year 2026-27 onward",
+      "page": "https://tinpan.proteantech.in/downloads/e-tds/eTDS-download-regular.html",
+      "url": "https://tinpan.proteantech.in/downloads/e-tds/download/TDS_RPU_1.2.zip",
+      "note": "The department's own data-entry utility. This skill writes the statement itself and does not need it, but the official file-format workbooks live in the same package."
+    },
+    {
+      "kind": "format",
+      "name": "File Format for Form Number 140 - 26Q - Q1 to Q4, Version 1.2 (22-07-2026)",
+      "version": "1.2",
+      "effective": "tax year 2026-27 onward",
+      "page": "https://tinpan.proteantech.in/downloads/e-tds/eTDS-download-regular.html",
+      "url": "https://tinpan.proteantech.in/downloads/e-tds/Form%20Number%20140%20-%2026Q%20-%20Q1%20to%20Q4_22072026.xlsx",
+      "note": "The workbook every field number and remark in layout140.py is taken from. It has one sheet, 'File Format_R'."
+    },
+    {
+      "kind": "format",
+      "name": "File Format for Form Number 138 - 24Q - Q1 to Q3, Version 1.2 (22-07-2026)",
+      "version": "1.2",
+      "effective": "tax year 2026-27 onward",
+      "page": "https://tinpan.proteantech.in/downloads/e-tds/eTDS-download-regular.html",
+      "url": "https://tinpan.proteantech.in/downloads/e-tds/Form%20Number%20138-24Q%20-%20Q1%20to%20Q3_22072026.xlsx",
+      "note": "Q1 to Q3 only. The Q4 (Annexure II, including the salary detail records) workbook is not yet published, so the Q4 record set is assembled from the FVU codes and the legacy 24Q table. Sheet name 'File Format_R'."
+    },
+    {
+      "kind": "format",
+      "name": "File Format for Form Number 144 - 27Q - Q1 to Q4, Version 1.2 (22-07-2026)",
+      "version": "1.2",
+      "effective": "tax year 2026-27 onward",
+      "page": "https://tinpan.proteantech.in/downloads/e-tds/eTDS-download-regular.html",
+      "url": "https://tinpan.proteantech.in/downloads/e-tds/Form%20Number%20144-27Q%20-%20Q1%20to%20Q4_22072026.xlsx",
+      "note": "Non-resident payments. Sheet name 'FIleformat_R' (the capitalisation differs from the 138/140 workbooks)."
+    },
+    {
+      "kind": "format",
+      "name": "File Format for Form Number 143 - 27EQ - Q1 to Q4, Version 1.2 (22-07-2026)",
+      "version": "1.2",
+      "effective": "tax year 2026-27 onward",
+      "page": "https://tinpan.proteantech.in/downloads/e-tds/eTDS-download-regular.html",
+      "url": "https://tinpan.proteantech.in/downloads/e-tds/Form%20Number%20143-27EQ%20-%20Q1%20to%20Q4_22072026.xlsx",
+      "note": "TCS. Not yet implemented in this skill. Sheet name 'FIleformat_R'."
+    },
+    {
+      "kind": "sample",
+      "name": "Sample statement for Form Number 138 Q1 to Q3 (138RQ1.txt)",
+      "version": "1.2",
+      "effective": "tax year 2026-27 onward",
+      "page": "https://tinpan.proteantech.in/downloads/e-tds/eTDS-download-regular.html",
+      "url": "https://tinpan.proteantech.in/downloads/e-tds/138RQ1.txt",
+      "note": "FH 18 / BH 72 / CD 30 / DD 45, same record shape as 140."
+    },
+    {
+      "kind": "sample",
+      "name": "Sample statement for Form Number 140 Q1 to Q4 (140RQ1.txt)",
+      "version": "1.2",
+      "effective": "tax year 2026-27 onward",
+      "page": "https://tinpan.proteantech.in/downloads/e-tds/eTDS-download-regular.html",
+      "url": "https://tinpan.proteantech.in/downloads/e-tds/140RQ1.txt",
+      "note": "The reference the Form 140 layout was first confirmed against."
+    },
+    {
+      "kind": "sample",
+      "name": "Sample statement for Form Number 144 Q1 to Q4 (144RQ1.txt)",
+      "version": "1.2",
+      "effective": "tax year 2026-27 onward",
+      "page": "https://tinpan.proteantech.in/downloads/e-tds/eTDS-download-regular.html",
+      "url": "https://tinpan.proteantech.in/downloads/e-tds/144RQ1.txt",
+      "note": "FH 18 / BH 72 / CD 30 / DD 45."
+    },
+    {
+      "kind": "sample",
+      "name": "Sample statement for Form Number 143 Q1 to Q4 (143.txt)",
+      "version": "1.2",
+      "effective": "tax year 2026-27 onward",
+      "page": "https://tinpan.proteantech.in/downloads/e-tds/eTDS-download-regular.html",
+      "url": "https://tinpan.proteantech.in/downloads/e-tds/143.txt",
+      "note": "TCS sample. Not yet used."
+    }
+  ]
+}

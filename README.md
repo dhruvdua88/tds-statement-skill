@@ -24,6 +24,10 @@ utility against the real Challan Status Inquiry, and packages what goes up.
 - **A draft that announces itself.** While a required header value is missing,
   the statement is named `DRAFT_PENDING_HEADER.txt` and the package says NOT
   READY in its first line.
+- **One query list, and blockers named.** The TXT, the workbook and a standalone
+  query file all carry the same list of what is outstanding, each item tied to
+  the field or record it is about. A real Challan Status Inquiry is a blocker in
+  its own right, because the utility cannot write a `.fvu` without it.
 
 ## Install
 
@@ -32,7 +36,7 @@ git clone <this repo> ~/TDS-Statement-Skill
 cd ~/TDS-Statement-Skill
 python3 -m pip install --user openpyxl        # only outside dependency
 python3 tests/make_fixtures.py
-python3 -m unittest discover -s tests         # 30 checks, no network needed
+python3 -m unittest discover -s tests         # 38 checks, no network needed
 ```
 
 To use it as an agent skill, put the folder where your agent looks for skills:
@@ -51,19 +55,21 @@ python3 scripts/tds.py fetch-official --url <the current FVU zip>
 python3 scripts/tds.py check-env
 ```
 
-## Five commands
+## Six commands
 
 ```bash
 S=~/TDS-Statement-Skill
 
 python3 $S/scripts/tds.py intake client_sheet.xlsx -o statement.json \
         --form 140 --fy 2026-27 --quarter Q2 --report mapping.xlsx   # 1 read
-python3 $S/scripts/tds.py lint statement.json                        # 2 check
+python3 $S/scripts/tds.py lint statement.json --json issues.json      # 2 check
 python3 $S/scripts/tds.py build statement.json -o build/             # 3 write the TXT
 python3 $S/scripts/tds.py fvu build/TAN140Q2.txt --csi challan.csi -o fvu_out/   # 4 validate
+python3 $S/scripts/tds.py queries statement.json -o queries.xlsx \
+        --fvu-result fvu_out/fvu_result.json --issues issues.json     # 5 what is outstanding
 python3 $S/scripts/tds.py package statement.json -o deliverables/ \
         --txt-dir build --fvu-result fvu_out/fvu_result.json \
-        --working-paper working.xlsx                                 # 5 hand over
+        --working-paper working.xlsx --issues issues.json             # 6 hand over
 ```
 
 `python3 scripts/tds.py --help` lists everything, including `excel`,
@@ -79,7 +85,7 @@ itself.
 ## Layout
 
 ```
-scripts/     the pipeline: model, intake, layouts, builder, lint, fvu, excel, package
+scripts/     the pipeline: model, intake, layouts, builder, lint, fvu, excel, queries, package
 references/  the field tables, the section codes, the two runbooks
 tests/       fixtures, golden files, the test suite
 ```

@@ -18,6 +18,7 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
+import queries
 from model import Statement
 
 
@@ -58,9 +59,11 @@ is uploaded; the portal compares them.
 """
 
 
-def checklist(st: Statement, fvu_result: dict | None, files: dict) -> str:
+def checklist(st: Statement, fvu_result: dict | None, files: dict,
+              qblockers: list[dict] | None = None) -> str:
+    qblockers = qblockers or []
     ok_fvu = bool(fvu_result and fvu_result.get("status") == "PASS")
-    header = "READY TO UPLOAD" if ok_fvu and not st.is_draft else "NOT READY - DO NOT UPLOAD"
+    header = "READY TO UPLOAD" if ok_fvu and not qblockers else "NOT READY - DO NOT UPLOAD"
     lines = [
         f"# Upload checklist - {header}",
         "",
@@ -80,9 +83,8 @@ def checklist(st: Statement, fvu_result: dict | None, files: dict) -> str:
         lines.append(f"- [ ] Upload `{Path(files['fvu']).name}` on the portal's TDS statement upload screen.")
         lines.append("- [ ] Keep the original `.txt` with the acknowledgement; the portal may ask for it if the upload is queried.")
     else:
-        status = (fvu_result or {}).get("status", "not run")
-        lines.append(f"- [ ] The FVU has NOT produced a `.fvu` (status: {status}). Do not upload yet.")
-        lines.append("- [ ] Resolve the reasons above, re-run the utility, and rebuild this folder.")
+        lines.append("- [ ] The FVU has NOT produced a `.fvu`. Do not upload yet.")
+        lines.append("- [ ] Work through the blockers below, fix the statement, and rebuild this folder.")
     lines += [
         "",
         "## After the upload",
@@ -92,20 +94,33 @@ def checklist(st: Statement, fvu_result: dict | None, files: dict) -> str:
         "- [ ] Confirm the deductee count and the tax on Form 27A agree with the acknowledgement.",
         "- [ ] File the acknowledgement with the working paper.",
     ]
-    if st.is_draft:
-        lines += ["", "## Still outstanding from the client", ""]
-        for p in st.blocking_pending:
-            lines.append(f"- {p.get('field')}: {p.get('why')}")
+    if qblockers:
+        lines += ["", "## Blockers stopping the .fvu", ""]
+        for q in qblockers:
+            owner = f" _({q['owner']})_" if q.get("owner") else ""
+            lines.append(f"- **{q['id']}  {q['reference']}** - {q['issue']}{owner}")
+        lines += ["", "The same list is in the workbook's *Queries & Blockers* tab and in the "
+                      f"`Queries_{st.form}_{st.quarter or 'Q0'}.xlsx` file beside this checklist."]
     return "\n".join(lines) + "\n"
 
 
 def assemble(statement_path, out_dir, txt_dir: str = "", fvu_result: str = "",
-             working_paper: str = "") -> dict:
+             working_paper: str = "", issues: list[dict] | None = None) -> dict:
     st = Statement.load(statement_path)
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     files: dict[str, str] = {}
     fvu = json.loads(Path(fvu_result).read_text()) if fvu_result else None
+    if issues is None:
+        # Recompute the pre-flight findings so the package's blocker list cannot
+        # drift from the one the workbook was built with.
+        try:
+            import lint
+            issues = [i.as_dict() for i in lint.model_issues(st)]
+        except Exception:
+            issues = []
+    qrows = queries.build(st, issues, fvu)
+    qblockers = queries.blockers(qrows)
     manifest = None
     if txt_dir and (Path(txt_dir) / "manifest.json").exists():
         manifest = json.loads((Path(txt_dir) / "manifest.json").read_text())
@@ -133,14 +148,24 @@ def assemble(statement_path, out_dir, txt_dir: str = "", fvu_result: str = "",
         shutil.copy2(working_paper, out / Path(working_paper).name)
         files["working_paper"] = str(out / Path(working_paper).name)
 
+    # The query list on its own: one workbook for the client, one note that can
+    # be pasted into an e-mail. It is the same list the workbook's Queries tab
+    # shows, so the two can never disagree.
+    q_xlsx, q_md = queries.write_sidecar(st, out, issues, fvu)
+    files["queries_xlsx"] = str(q_xlsx)
+    files["queries_md"] = str(q_md)
+
     (out / "Form_27A.md").write_text(form_27a(st, manifest))
-    (out / "UPLOAD_CHECKLIST.md").write_text(checklist(st, fvu, files))
+    (out / "UPLOAD_CHECKLIST.md").write_text(checklist(st, fvu, files, qblockers))
 
     summary = {
         "prepared": datetime.now().isoformat(timespec="seconds"),
         "form": st.form, "tan": st.tan, "period": f"{st.financial_year} {st.quarter}",
-        "status": (fvu or {}).get("status", "FVU_NOT_RUN") if not st.is_draft else "DRAFT_PENDING",
-        "ready_to_upload": bool(fvu and fvu.get("status") == "PASS") and not st.is_draft,
+        "status": "DRAFT_PENDING" if st.is_draft else queries.fvu_status_label(fvu),
+        "ready_to_upload": not qblockers and bool(fvu and fvu.get("status") == "PASS"),
+        "blockers": [{"id": q["id"], "reference": q["reference"], "issue": q["issue"]}
+                     for q in qblockers],
+        "queries": queries.counts(qrows),
         "totals": {k: str(v) for k, v in st.totals.items()},
         "files": {k: Path(v).name for k, v in files.items()},
         "checksums": {Path(v).name: sha256(Path(v)) for v in files.values()},
@@ -156,16 +181,18 @@ def assemble(statement_path, out_dir, txt_dir: str = "", fvu_result: str = "",
         "Files",
         "  1. UPLOAD_CHECKLIST.md       what to do, in order",
         "  2. Form_27A.md               the control totals for Form 27A",
-        "  3. the .fvu file             the only file that is uploaded (when the run passed)",
+        "  3. the .fvu file             the only file that is uploaded (present only when the run passed)",
         "  4. the .txt file             the statement behind the .fvu; keep it with the acknowledgement",
         "  5. the workbook              the working paper, challan allocation and flags",
-        "  6. package_manifest.json     checksums and the utility result",
+        f"  6. {Path(q_xlsx).name:<24} the query list on its own, for the client",
+        f"  7. {Path(q_md).name:<24} the same list as a note",
+        "  8. package_manifest.json     checksums and the utility result",
         "",
     ]
-    if st.is_draft:
-        readme += ["Outstanding from the client", ""]
-        for p in st.blocking_pending:
-            readme.append(f"  - {p.get('field')}: {p.get('why')}")
+    if qblockers:
+        readme += ["Blockers stopping the .fvu", ""]
+        for q in qblockers:
+            readme.append(f"  - {q['id']}  {q['reference']}: {q['issue']}")
         readme.append("")
     readme.append("Do not upload anything unless UPLOAD_CHECKLIST.md says READY TO UPLOAD.")
     (out / "README.txt").write_text("\n".join(readme) + "\n")

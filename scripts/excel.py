@@ -20,6 +20,7 @@ from decimal import Decimal
 from pathlib import Path
 
 import codes
+import queries
 from model import Statement
 
 HEAD_FILL = "1F3864"
@@ -51,6 +52,10 @@ def build(st: Statement, out_path: str | Path, fvu_result: dict | None = None,
 
     wb = Workbook()
     totals = st.totals
+    # One query list feeds the Summary's blocker block, the Queries tab and the
+    # standalone file package.py writes, so all three always tell the same story.
+    qrows = queries.build(st, issues, fvu_result)
+    qblockers = queries.blockers(qrows)
 
     # ---------------------------------------------------------------- summary
     ws = wb.active
@@ -58,7 +63,9 @@ def build(st: Statement, out_path: str | Path, fvu_result: dict | None = None,
     ws["A1"] = "TDS statement working paper"
     ws["A1"].font = Font(bold=True, size=14)
     form_name = {"140": "Form 140 - resident non-salary (earlier Form 26Q)",
-                 "138": "Form 138 - salary (earlier Form 24Q)"}.get(st.form, st.form)
+                 "138": "Form 138 - salary (earlier Form 24Q)",
+                 "144": "Form 144 - payments to non-residents (earlier Form 27Q)",
+                 "143": "Form 143 - TCS (earlier Form 27EQ)"}.get(st.form, st.form)
     ded = st.deductor
     addr = ded.get("address")
     rp = st.responsible_person
@@ -93,8 +100,15 @@ def build(st: Statement, out_path: str | Path, fvu_result: dict | None = None,
         ("", ""),
         ("Status", "DRAFT - do not upload" if st.is_draft else "Ready for the official FVU"),
         ("Outstanding", st.draft_reason or "nothing"),
+        ("", ""),
+        ("FVU", queries.fvu_status_label(fvu_result)),
+        ("Blockers stopping the FVU",
+         f"{len(qblockers)} - fix these before the utility will produce a .fvu"
+         if qblockers else "none"),
         ("Prepared", datetime.now().strftime("%d-%b-%Y")),
     ]
+    for q in qblockers:
+        rows.append((f"   {q['id']}  {q['reference']}", q["issue"]))
     for i, (k, v) in enumerate(rows, start=3):
         ws.cell(row=i, column=1, value=k).font = Font(bold=True)
         cell = ws.cell(row=i, column=2, value=v)
@@ -205,18 +219,20 @@ def build(st: Statement, out_path: str | Path, fvu_result: dict | None = None,
                 c.fill = PatternFill("solid", fgColor=fill)
     _widths(ws, [8, 22, 96, 30])
 
-    # ------------------------------------------------------------ pending
-    ws = wb.create_sheet("Pending & Queries")
-    ws.append(["What", "Why it is needed", "Owner", "Blocks filing?"])
+    # ------------------------------------------------------------ queries
+    ws = wb.create_sheet("Queries & Blockers")
+    ws.append(["#", "Severity", "Source", "Where", "Issue / ask", "Why it matters", "Owner", "Status"])
     _style_header(ws)
-    for p in st.pending:
-        ws.append([p.get("field"), p.get("why"), p.get("owner", ""),
-                   "Yes" if p.get("blocking", True) else "No"])
+    sev_fill = {"BLOCKER": BAD_FILL, "WARNING": WARN_FILL, "INFO": OK_FILL}
+    for q in qrows:
+        ws.append([q["id"], q["severity"], queries.SOURCE_LABEL.get(q["source"], q["source"]),
+                   q["reference"], q["issue"], q["why"], q["owner"], q["status"]])
         for c in ws[ws.max_row]:
-            c.fill = PatternFill("solid", fgColor=WARN_FILL)
-    if not st.pending:
-        ws.append(["Nothing outstanding", "", "", ""])
-    _widths(ws, [30, 90, 12, 14])
+            c.fill = PatternFill("solid", fgColor=sev_fill.get(q["severity"], WARN_FILL))
+    if not qrows:
+        ws.append(["", "", "", "", "Nothing outstanding.", "", "", ""])
+    _widths(ws, [6, 10, 22, 34, 58, 58, 9, 9])
+    ws.freeze_panes = "A2"
 
     # ------------------------------------------------------------ FVU
     ws = wb.create_sheet("FVU Results")

@@ -6,6 +6,7 @@
     tds build    statement.json -o build/          write the TXT
     tds fvu      build/X.txt --csi challan.csi     run the official utility
     tds excel    statement.json -o working.xlsx    build the working paper
+    tds queries  statement.json -o queries.xlsx    the blockers stopping the .fvu
     tds package  statement.json -o deliverables/   assemble the filing folder
     tds fetch-official                             download the official utilities
     tds check-env                                  is this machine able to run the FVU
@@ -125,12 +126,36 @@ def cmd_excel(args) -> int:
     return 0
 
 
+def cmd_queries(args) -> int:
+    import queries
+
+    st = Statement.load(args.statement)
+    issues = json.loads(Path(args.issues).read_text()) if args.issues else None
+    fvu_result = json.loads(Path(args.fvu_result).read_text()) if args.fvu_result else None
+    rows = queries.build(st, issues, fvu_result)
+    n = queries.counts(rows)
+    print(f"FVU      {queries.fvu_status_label(fvu_result)}")
+    print(f"blockers {n['BLOCKER']}  warnings {n['WARNING']}  recorded {n['INFO']}")
+    for q in queries.blockers(rows):
+        print(f"  {q['id']}  {q['reference']}: {q['issue']}"
+              + (f"  ({q['owner']})" if q["owner"] else ""))
+    if args.out:
+        out = Path(args.out)
+        if out.suffix.lower() in (".xlsx", ".xlsm"):
+            queries.write_xlsx(st, out, issues, fvu_result)
+        else:
+            queries.write_markdown(st, out, issues, fvu_result)
+        print(f"wrote    {out}")
+    return 1 if n["BLOCKER"] else 0
+
+
 def cmd_package(args) -> int:
     import package
 
     result = package.assemble(
         args.statement, out_dir=args.out, txt_dir=args.txt_dir, fvu_result=args.fvu_result,
         working_paper=args.working_paper,
+        issues=json.loads(Path(args.issues).read_text()) if args.issues else None,
     )
     print(json.dumps(result, indent=2))
     return 0
@@ -223,12 +248,20 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--issues", default="")
     s.set_defaults(func=cmd_excel)
 
+    s = sub.add_parser("queries", help="the query list and the blockers stopping the .fvu")
+    s.add_argument("statement")
+    s.add_argument("-o", "--out", default="", help="write the list here (.xlsx or .md)")
+    s.add_argument("--issues", default="", help="lint issues JSON from 'tds lint --json'")
+    s.add_argument("--fvu-result", default="")
+    s.set_defaults(func=cmd_queries)
+
     s = sub.add_parser("package", help="assemble the filing folder")
     s.add_argument("statement")
     s.add_argument("-o", "--out", required=True)
     s.add_argument("--txt-dir", default="")
     s.add_argument("--fvu-result", default="")
     s.add_argument("--working-paper", default="")
+    s.add_argument("--issues", default="")
     s.set_defaults(func=cmd_package)
 
     s = sub.add_parser("fetch-official", help="download the official RPU/FVU packages")

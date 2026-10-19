@@ -28,6 +28,7 @@ sys.path.insert(0, str(SCRIPTS))
 import build_txt  # noqa: E402
 import intake  # noqa: E402
 import lint  # noqa: E402
+import queries  # noqa: E402
 from model import Challan, Deductee, Statement, date8, norm_date  # noqa: E402
 
 FIX = ROOT / "tests" / "fixtures"
@@ -261,6 +262,57 @@ class TestIntake(unittest.TestCase):
         issues = lint.model_issues(st)
         errors = [str(i) for i in issues if i.level == lint.ERROR]
         self.assertEqual(errors, [], "\n".join(errors))
+
+
+class TestQueries(unittest.TestCase):
+    """One list, from three sources, so a reviewer reads one place to know what is outstanding."""
+
+    def _st(self):
+        return Statement.load(FIX / "example_140.json")
+
+    def test_no_run_yields_the_run_and_the_csi_as_blockers(self):
+        rows = queries.build(self._st())
+        refs = " | ".join(q["reference"] for q in queries.blockers(rows))
+        self.assertIn("the official utility", refs)
+        self.assertIn("Challan Status Inquiry", refs)
+        self.assertFalse(queries.ready(rows))
+
+    def test_a_pass_clears_everything(self):
+        rows = queries.build(self._st(), fvu_result={"status": "PASS", "csi": "x.csi"})
+        self.assertEqual(queries.blockers(rows), [])
+        self.assertTrue(queries.ready(rows))
+        self.assertEqual(queries.counts(rows)[queries.INFO], 1)
+
+    def test_field_errors_become_blockers_naming_the_line(self):
+        res = {"status": "FIELD_ERRORS", "csi": "x.csi", "errors": [
+            {"line_no": "7", "record_type": "DD", "field_name": "8", "code": "T-FV-3175",
+             "message": "bad pan"}]}
+        bl = queries.blockers(queries.build(self._st(), fvu_result=res))
+        self.assertEqual(len(bl), 1)
+        self.assertIn("line 7", bl[0]["reference"])
+        self.assertIn("T-FV-3175", bl[0]["issue"])
+
+    def test_pending_is_not_repeated_by_the_linter(self):
+        st = self._st()
+        st.pending = [{"field": "deductor.tan", "why": "needed", "owner": "client", "blocking": True}]
+        issues = [i.as_dict() for i in lint.model_issues(st)]
+        rows = queries.build(st, issues, fvu_result={"status": "PASS", "csi": "x.csi"})
+        self.assertEqual([q["reference"] for q in rows].count("deductor.tan"), 1)
+
+    def test_ids_run_in_order_and_blockers_come_first(self):
+        st = self._st()
+        st.pending = [{"field": "a", "why": "w", "blocking": False}]
+        rows = queries.build(st, [{"level": "error", "code": "X", "message": "m", "ref": "r"}],
+                             fvu_result={"status": "PASS", "csi": "x.csi"})
+        self.assertEqual([q["id"] for q in rows],
+                         [f"Q-{n:02d}" for n in range(1, len(rows) + 1)])
+        self.assertEqual(rows[0]["severity"], queries.BLOCKER)
+
+    def test_a_client_facing_list_is_written(self):
+        tmp = Path(tempfile.mkdtemp(prefix="tds-q-"))
+        xlsx, md = queries.write_sidecar(self._st(), tmp)
+        self.assertTrue(xlsx.exists() and md.exists())
+        self.assertIn("Blockers", md.read_text())
 
 
 class TestCli(unittest.TestCase):

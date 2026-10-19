@@ -108,15 +108,32 @@ Fix the document, rebuild, run again. Never patch the generated file.
 ### 5. Hand over
 
 ```bash
-python3 scripts/tds.py excel statement.json -o working.xlsx --fvu-result fvu_out/fvu_result.json
+python3 scripts/tds.py excel statement.json -o working.xlsx \
+        --fvu-result fvu_out/fvu_result.json --issues issues.json
 python3 scripts/tds.py package statement.json -o deliverables/ \
-        --txt-dir build --fvu-result fvu_out/fvu_result.json --working-paper working.xlsx
+        --txt-dir build --fvu-result fvu_out/fvu_result.json \
+        --working-paper working.xlsx --issues issues.json
 ```
 
-The folder carries the file to upload, the Form 27A figures, the working paper,
-what the utility said, and a checklist whose first line says READY TO UPLOAD or
-NOT READY. **Never upload.** Preparing a filing and filing it are different
-decisions, and the second one belongs to the person who signs.
+The folder always carries five things: the statement TXT, the working paper, the
+query list, the Form 27A figures, and a checklist whose first line says READY TO
+UPLOAD or NOT READY. The `.fvu` is there only when the utility produced it.
+
+**The query list is a deliverable, not a by-product.** `tds queries` writes it
+on its own (a workbook for the client and a note that can be pasted into an
+e-mail), and the same list is the workbook's *Queries & Blockers* tab. It merges
+the three things that can hold a statement up: the values the builder was
+missing, the pre-flight findings, and what the utility said. Every entry names
+the field or record it is about, so it can go to the client without rewriting.
+
+Anything marked BLOCKER stops the `.fvu`: nothing is uploaded while a blocker
+stands, and the Excel and the query list both say so. A real Challan Status
+Inquiry is always one of them, because without it the utility cannot produce a
+`.fvu` at all and the most this pipeline can honestly claim is field-level
+validation.
+
+**Never upload.** Preparing a filing and filing it are different decisions, and
+the second one belongs to the person who signs.
 
 ## The document
 
@@ -148,7 +165,8 @@ spreadsheets reorder dates and lose paise, and the utility rejects both.
 Salary and non-salary are separate statements, in separate files, with separate
 tokens. Do not combine them. Read `references/form-140-layout.md` or
 `references/form-138-layout.md` for the field tables of whichever you are
-building.
+building. Form 144 (non-resident) shares the 140 record shape; its layout module
+is the next one being added.
 
 ## What to ask the client for
 
