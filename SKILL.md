@@ -49,9 +49,11 @@ Two consequences that come up constantly:
 
 ### 0. Ask for everything first, in one message
 
-Before running anything, send the client one checklist and wait for it. Asking
-piecemeal later costs a filing window, and the person filling it in should see
-the whole list at once. Ask for:
+At the start, show the user this list once, so they can see the whole of
+what a filing needs. It is guidance, not a gate: **never wait for it and never
+refuse to run**. Work with whatever has been provided, run every step, and let
+anything missing land in `pending` (the TXT is then named DRAFT and the query
+list says exactly what is still needed). The list:
 
 1. **Deductee working sheet (Excel/CSV)** for the quarter: party name, **PAN of
    every party**, section, date of payment/credit, amount paid, rate, TDS
@@ -74,9 +76,10 @@ the whole list at once. Ask for:
 8. For a correction: the statement as filed, its token (PRN), and the TRACES
    consolidated file / its hash.
 
-When a value is genuinely unavailable, leave the schema field blank and record
-it in `pending`. Never invent one to get a clean run. Items 5 and 6 are
-optional; the rest block a valid filing.
+When a value is not provided, leave the schema field blank and record it in
+`pending`. Never invent one to get a clean run. Items 5 and 6 only add checks;
+without the others the outputs are still produced, but as a draft that cannot
+be filed until the gaps are filled.
 
 ### 1. Read the source
 
