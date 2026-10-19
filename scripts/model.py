@@ -62,6 +62,25 @@ class ModelError(ValueError):
     """Raised when the document cannot be used at all."""
 
 
+# The forms this copy can actually write. A form is listed here only once its
+# layout module exists and has been checked against the department's own
+# file-format workbook; until then intake, lint and build refuse it with a plain
+# message instead of failing somewhere inside the builder.
+SUPPORTED_FORMS = ("140",)
+NOT_YET_ADDED = ("138", "144")
+
+
+def check_form(form) -> str:
+    """Refuse, in one plain line, a form whose layout has not been added yet."""
+    form = str(form or "").strip()
+    if form in NOT_YET_ADDED:
+        raise ModelError(f"Form {form} layout not yet added")
+    if form not in SUPPORTED_FORMS:
+        raise ModelError(f"unsupported form {form!r}; this copy writes Form "
+                         + ", ".join(SUPPORTED_FORMS))
+    return form
+
+
 def d(value, what: str = "amount") -> Decimal:
     """Parse a money value strictly. Blank is zero; anything unparseable is an error.
 

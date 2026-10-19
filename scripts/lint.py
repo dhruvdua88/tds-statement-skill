@@ -39,6 +39,7 @@ from model import (
     PAN_RE,
     TAN_RE,
     Statement,
+    check_form,
 )
 
 ERROR, WARN, INFO = "error", "warn", "info"
@@ -120,6 +121,7 @@ def _rate_decimal(value: str) -> Decimal | None:
 
 
 def model_issues(st: Statement) -> list[Issue]:
+    check_form(st.form)
     out: list[Issue] = []
     add = lambda lvl, code, msg, ref="": out.append(Issue(lvl, code, msg, ref))
     unknown = WARN if not codes.TABLES_COMPLETE else ERROR
@@ -129,8 +131,6 @@ def model_issues(st: Statement) -> list[Issue]:
             + "); run scripts/extract_annexures.py before relying on these checks")
 
     # ---- statement level -------------------------------------------------
-    if st.form not in ("140", "138", "144"):
-        add(ERROR, "FORM", f"unsupported form {st.form!r}")
     if st.upload_type not in ("R", "C"):
         add(ERROR, "UPLOAD_TYPE", f"upload type must be R or C, got {st.upload_type!r}")
     if st.upload_type == "C" and not st.correction.get("original_token"):

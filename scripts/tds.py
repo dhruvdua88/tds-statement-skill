@@ -281,7 +281,13 @@ def main(argv: list[str] | None = None) -> int:
     s.set_defaults(func=cmd_schema)
 
     args = p.parse_args(argv)
-    return args.func(args)
+    import build_txt
+    from model import ModelError
+    try:
+        return args.func(args)
+    except (build_txt.BuildError, ModelError) as exc:
+        print(f"tds {args.cmd}: {exc}", file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":

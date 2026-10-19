@@ -35,7 +35,7 @@ from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
 
-from model import Statement, date8, money_str
+from model import ModelError, Statement, check_form, date8, money_str
 
 
 class BuildError(RuntimeError):
@@ -51,6 +51,10 @@ LAYOUT_MODULES = {"140": "layout140", "138": "layout138", "144": "layout144"}
 
 def load_layout(form: str):
     """Import the field map for a form, with a readable error when it is absent."""
+    try:
+        check_form(form)
+    except ModelError as exc:
+        raise BuildError(str(exc)) from exc
     name = LAYOUT_MODULES.get(str(form))
     if not name:
         raise BuildError(

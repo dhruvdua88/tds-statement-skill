@@ -322,6 +322,26 @@ class TestCli(unittest.TestCase):
         self.assertEqual(out.returncode, 0)
         self.assertIn("tds-statement/1", out.stdout)
 
+    def test_forms_without_a_layout_are_refused_in_one_line(self):
+        tmp = Path(tempfile.mkdtemp(prefix="tds-cli-"))
+        doc = json.loads((FIX / "example_140.json").read_text())
+        for form in ("138", "144"):
+            doc["form"] = form
+            path = tmp / f"st{form}.json"
+            path.write_text(json.dumps(doc))
+            runs = [
+                ["intake", str(FIX / "messy_source.xlsx"), "-o", str(tmp / "x.json"), "--form", form],
+                ["lint", str(path)],
+                ["build", str(path), "-o", str(tmp / "b")],
+            ]
+            for argv in runs:
+                out = subprocess.run([sys.executable, str(SCRIPTS / "tds.py"), *argv],
+                                     capture_output=True, text=True)
+                self.assertNotEqual(out.returncode, 0, argv)
+                self.assertIn(f"Form {form} layout not yet added", out.stderr, argv)
+                self.assertNotIn("Traceback", out.stderr, argv)
+                self.assertEqual(len(out.stderr.strip().splitlines()), 1, out.stderr)
+
     def test_build_and_lint_via_cli(self):
         tmp = Path(tempfile.mkdtemp(prefix="tds-cli-"))
         build = subprocess.run(

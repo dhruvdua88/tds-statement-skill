@@ -27,7 +27,7 @@ from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
-from model import Address, Challan, Deductee, Statement, d, norm_date
+from model import Address, Challan, Deductee, Statement, check_form, d, norm_date
 
 # ---------------------------------------------------------------------------
 # Header vocabulary. Order matters only for readability; scoring is by match.
@@ -516,6 +516,7 @@ def write_mapping_report(path: str | Path, sheets: list[SheetReport], challans: 
 def intake(sources: list[str], form: str = "140", financial_year: str = "",
            quarter: str = "", overrides: dict[str, str] | None = None,
            report: str | None = None) -> tuple[Statement, dict]:
+    check_form(form)
     overrides = overrides or {}
     st = Statement(form=form, financial_year=financial_year, quarter=quarter)
     sheets: list[SheetReport] = []
