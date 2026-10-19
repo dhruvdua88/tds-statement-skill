@@ -210,7 +210,7 @@ def main(argv: list[str] | None = None) -> int:
     s = sub.add_parser("intake", help="read source files into the statement document")
     s.add_argument("sources", nargs="+")
     s.add_argument("-o", "--out", required=True, help="statement JSON to write")
-    s.add_argument("--form", default="140", choices=["140", "138"])
+    s.add_argument("--form", default="140", choices=["138", "140", "144"])
     s.add_argument("--fy", default="", help="financial year, e.g. 2026-27")
     s.add_argument("--quarter", default="", help="Q1..Q4")
     s.add_argument("--report", default="", help="mapping report workbook to write")

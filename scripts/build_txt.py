@@ -29,6 +29,7 @@ vague about both:
 from __future__ import annotations
 
 import hashlib
+import importlib
 import json
 from datetime import datetime
 from decimal import Decimal
@@ -45,14 +46,19 @@ def _is_whole_rupees(value: Decimal) -> bool:
     return value == value.to_integral_value()
 
 
+LAYOUT_MODULES = {"140": "layout140", "138": "layout138", "144": "layout144"}
+
+
 def load_layout(form: str):
-    if form == "140":
-        import layout140 as mod
-        return mod
-    if form == "138":
-        import layout138 as mod
-        return mod
-    raise BuildError(f"unsupported form {form!r} (expected '140' or '138')")
+    """Import the field map for a form, with a readable error when it is absent."""
+    name = LAYOUT_MODULES.get(str(form))
+    if not name:
+        raise BuildError(
+            f"unsupported form {form!r}; expected one of {', '.join(sorted(LAYOUT_MODULES))}")
+    try:
+        return importlib.import_module(name)
+    except ImportError as exc:
+        raise BuildError(f"the layout module {name}.py is missing from this copy ({exc})") from exc
 
 
 def build_records(st: Statement, layout) -> list[str]:

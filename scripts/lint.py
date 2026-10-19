@@ -129,7 +129,7 @@ def model_issues(st: Statement) -> list[Issue]:
             + "); run scripts/extract_annexures.py before relying on these checks")
 
     # ---- statement level -------------------------------------------------
-    if st.form not in ("140", "138"):
+    if st.form not in ("140", "138", "144"):
         add(ERROR, "FORM", f"unsupported form {st.form!r}")
     if st.upload_type not in ("R", "C"):
         add(ERROR, "UPLOAD_TYPE", f"upload type must be R or C, got {st.upload_type!r}")
@@ -405,9 +405,13 @@ def model_issues(st: Statement) -> list[Issue]:
         if row.tds < 0:
             add(WARN, "NEGATIVE_TDS", "negative tax; confirm this is a genuine reversal", ref)
 
-        # DD field 28: four decimals, zero when nothing was deducted.
+        # DD field 28: four decimals, zero when nothing was deducted. Form 138
+        # carries no rate field at all, because the utility scopes the rate rule
+        # to forms 140, 143 and 144, so the checks below are skipped for it.
         rate = _rate_decimal(row.rate)
-        if rate is None:
+        if st.form == "138":
+            pass
+        elif rate is None:
             add(WARN, "RATE", f"rate {row.rate!r} is not numeric", ref)
         else:
             if row.tds == 0 and rate != 0:
