@@ -129,6 +129,23 @@ fee (s.427, the old s.234E, at 200 rupees a day capped at the tax). Pass
 lint warning. It is never added to a challan, because only a challan someone
 actually deposits can pay it.
 
+To tie the return to the books, pass the TDS payable ledger, exported from
+Tally or Zoho as xlsx or csv:
+
+```bash
+python3 scripts/tds.py recon statement.json --ledger tds_payable.xlsx -o recon.xlsx
+python3 scripts/tds.py excel statement.json -o working.xlsx --ledger tds_payable.xlsx
+```
+
+The *Books Reconciliation* sheet sets out TDS by section three ways: per books
+(credits to the ledger), per statement and per challans. Every difference gets
+its own row, and so does every ledger row whose section could not be read.
+Use `--ledger-kind expense` with an expense ledger to compare amounts booked
+with amounts paid. Tally often exports with the signs inverted, credits
+negative. The side of each entry is read from Debit/Credit columns or a Dr/Cr
+marker when the export has them. Only a bare signed Amount column falls back
+on `--credit-sign`, which defaults to negative.
+
 The folder always carries five things: the statement TXT, the working paper, the
 query list, the Form 27A figures, and a checklist whose first line says READY TO
 UPLOAD or NOT READY. The `.fvu` is there only when the utility produced it.

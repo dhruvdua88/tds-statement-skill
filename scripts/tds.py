@@ -7,6 +7,7 @@
     tds correct  filed.json corrected.json -o c/   a correction with only the changed records
     tds fvu      build/X.txt --csi challan.csi     run the official utility
     tds excel    statement.json -o working.xlsx    build the working paper
+    tds recon    statement.json --ledger L.xlsx    books vs statement vs challans, by section
     tds queries  statement.json -o queries.xlsx    the blockers stopping the .fvu
     tds package  statement.json -o deliverables/   assemble the filing folder
     tds fetch-official                             download the official utilities
@@ -148,9 +149,32 @@ def cmd_excel(args) -> int:
     issues = None
     if args.issues:
         issues = json.loads(Path(args.issues).read_text())
-    excel.build(st, args.out, fvu_result=fvu_result, issues=issues, filed_on=args.filed_on)
+    recon_result = None
+    if args.ledger:
+        import recon
+        recon_result = recon.reconcile(st, recon.read_ledger(args.ledger, args.credit_sign),
+                                       args.ledger_kind)
+    excel.build(st, args.out, fvu_result=fvu_result, issues=issues, filed_on=args.filed_on,
+                recon_result=recon_result)
     print(f"wrote {args.out}")
     return 0
+
+
+def cmd_recon(args) -> int:
+    import recon
+
+    st = Statement.load(args.statement)
+    result = recon.reconcile(st, recon.read_ledger(args.ledger, args.credit_sign), args.ledger_kind)
+    for r in result["rows"]:
+        line = f"  {r['section']:<34} books {r['books']:>14}  statement {r['statement']:>14}"
+        if r["challans"] is not None:
+            line += f"  challans {r['challans']:>14}"
+        print(line + ("  <- differs" if r in result["differences"] else ""))
+    if result["unmapped"]:
+        print(f"unmapped   {len(result['unmapped'])} ledger row(s) with no section - see the sheet")
+    if args.out:
+        print(f"wrote      {recon.write_workbook(st, result, args.out)}")
+    return 1 if result["differences"] or result["unmapped"] else 0
 
 
 def cmd_queries(args) -> int:
@@ -229,6 +253,15 @@ def cmd_schema(args) -> int:
     return 0
 
 
+def add_ledger_args(s, required: bool = False) -> None:
+    s.add_argument("--ledger", required=required, default="",
+                   help="Tally/Zoho ledger export (xlsx/csv): the TDS payable or an expense ledger")
+    s.add_argument("--ledger-kind", default="tds", choices=["tds", "expense"])
+    s.add_argument("--credit-sign", default="negative", choices=["negative", "positive"],
+                   help="for a single signed Amount column: which sign is a credit "
+                        "(Tally exports usually show credits negative)")
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="tds", description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -284,7 +317,14 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--fvu-result", default="")
     s.add_argument("--issues", default="")
     s.add_argument("--filed-on", default="", help="filing date DD-MM-YYYY for the late fee (default today)")
+    add_ledger_args(s)
     s.set_defaults(func=cmd_excel)
+
+    s = sub.add_parser("recon", help="books to return: TDS per ledger vs statement vs challans")
+    s.add_argument("statement")
+    add_ledger_args(s, required=True)
+    s.add_argument("-o", "--out", default="", help="workbook to write")
+    s.set_defaults(func=cmd_recon)
 
     s = sub.add_parser("queries", help="the query list and the blockers stopping the .fvu")
     s.add_argument("statement")

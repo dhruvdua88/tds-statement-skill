@@ -104,7 +104,8 @@ def interest_sheet(wb, st: Statement, filed_on: str = "") -> None:
 
 
 def build(st: Statement, out_path: str | Path, fvu_result: dict | None = None,
-          issues: list[dict] | None = None, filed_on: str = "") -> None:
+          issues: list[dict] | None = None, filed_on: str = "",
+          recon_result: dict | None = None) -> None:
     from openpyxl import Workbook
     from openpyxl.styles import Alignment, Font, PatternFill
 
@@ -278,6 +279,9 @@ def build(st: Statement, out_path: str | Path, fvu_result: dict | None = None,
     _widths(ws, [8, 22, 96, 30])
 
     interest_sheet(wb, st, filed_on)
+    if recon_result:
+        import recon
+        recon.write_sheet(wb, st, recon_result)
 
     # ------------------------------------------------------------ queries
     ws = wb.create_sheet("Queries & Blockers")
