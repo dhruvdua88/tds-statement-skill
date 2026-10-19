@@ -158,9 +158,10 @@ def build(st: Statement, out_path: str | Path, fvu_result: dict | None = None,
                "Remarks", "Source"])
     _style_header(ws)
     for i, r in enumerate(st.deductees, start=1):
+        status = r.reason_code or ("deposited" if r.deposited == "Y" else "not deposited")
         ws.append([i, r.challan_no, r.name, r.pan, r.deductee_code, r.section,
                    codes.section_label(r.section), r.payment_date, r.deduction_date,
-                   float(r.amount_paid), float(r.tds), r.rate, r.pan_status, r.remarks, r.source_ref])
+                   float(r.amount_paid), float(r.tds), r.rate, status, r.remarks, r.source_ref])
         last = ws[ws.max_row]
         last[9].number_format = MONEY
         last[10].number_format = MONEY
@@ -178,7 +179,7 @@ def build(st: Statement, out_path: str | Path, fvu_result: dict | None = None,
     for code in sorted({r.section for r in st.deductees}):
         rows_ = [r for r in st.deductees if r.section == code]
         meta = codes.SECTIONS.get(code, {})
-        rate = meta.get("rate_pct")
+        rate = codes.indicative_rate(code)
         ws.append([code, meta.get("description", "(not in the table)"),
                    f"{rate}%" if rate is not None else "", len(rows_),
                    float(sum((r.amount_paid for r in rows_), Decimal("0.00"))),

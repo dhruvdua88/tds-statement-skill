@@ -1,0 +1,1495 @@
+{
+  "FH": [
+    {
+      "field": 1,
+      "name": "Line Number",
+      "form_col": "NA",
+      "dtype": "INTEGER",
+      "size": "9",
+      "mandatory": "M",
+      "remark": "Running Sequence Number for each line in the file."
+    },
+    {
+      "field": 2,
+      "name": "Record Type",
+      "form_col": "NA",
+      "dtype": "CHAR",
+      "size": "2",
+      "mandatory": "M",
+      "remark": "Value should be \"FH\" signifying 'File Header' record"
+    },
+    {
+      "field": 3,
+      "name": "File Type",
+      "form_col": "NA",
+      "dtype": "CHAR",
+      "size": "4",
+      "mandatory": "M",
+      "remark": "Value should be \"NS1\" for FN 140"
+    },
+    {
+      "field": 4,
+      "name": "Upload Type",
+      "form_col": "NA",
+      "dtype": "CHAR",
+      "size": "2",
+      "mandatory": "M",
+      "remark": "Value should be R"
+    },
+    {
+      "field": 5,
+      "name": "File Creation Date",
+      "form_col": "NA",
+      "dtype": "DATE",
+      "size": "8",
+      "mandatory": "M",
+      "remark": "Mention the date of creation of the file in ddmmyyyy format."
+    },
+    {
+      "field": 6,
+      "name": "File Sequence No.",
+      "form_col": "NA",
+      "dtype": "INTEGER",
+      "size": "9",
+      "mandatory": "M",
+      "remark": "Indicates the running sequence number for the file. (Should be unique across all the files)"
+    },
+    {
+      "field": 7,
+      "name": "Uploader Type",
+      "form_col": "NA",
+      "dtype": "CHAR",
+      "size": "1",
+      "mandatory": "M",
+      "remark": "Value should be D"
+    },
+    {
+      "field": 8,
+      "name": "TAN of Deductor",
+      "form_col": "NA",
+      "dtype": "CHAR",
+      "size": "10",
+      "mandatory": "M",
+      "remark": "TAN of Deductor"
+    },
+    {
+      "field": 9,
+      "name": "Total No. of Batches",
+      "form_col": "NA",
+      "dtype": "INTEGER",
+      "size": "9",
+      "mandatory": "M",
+      "remark": "Indicates the number of batches that the file contains."
+    },
+    {
+      "field": 10,
+      "name": "Name of Return Preparation Utility",
+      "form_col": "NA",
+      "dtype": "CHAR",
+      "size": "75",
+      "mandatory": "M",
+      "remark": "Name of the software used for preparing the Quarterly e-TDS/TCS statement should be mentioned."
+    },
+    {
+      "field": 11,
+      "name": "Record Hash (Not applicable)",
+      "form_col": "NA",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "NA",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 12,
+      "name": "FVU Version (Not applicable)",
+      "form_col": "NA",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "NA",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 13,
+      "name": "File Hash (Not applicable)",
+      "form_col": "NA",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "NA",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 14,
+      "name": "Sam Version (Not applicable)",
+      "form_col": "NA",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "NA",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 15,
+      "name": "SAM Hash (Not applicable)",
+      "form_col": "NA",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "NA",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 16,
+      "name": "SCM Version (Not applicable)",
+      "form_col": "NA",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "NA",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 17,
+      "name": "SCM Hash (Not applicable)",
+      "form_col": "NA",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "NA",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 18,
+      "name": "Consolidated file hash",
+      "form_col": "NA",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "NA",
+      "remark": "No value should be specified"
+    }
+  ],
+  "BH": [
+    {
+      "field": 1,
+      "name": "Line Number",
+      "form_col": "",
+      "dtype": "INTEGER",
+      "size": "9",
+      "mandatory": "M",
+      "remark": "Running Sequence Number for each line in the file"
+    },
+    {
+      "field": 2,
+      "name": "Record Type",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "2",
+      "mandatory": "M",
+      "remark": "Value should be \"BH\" (Batch Header) for the batch header record"
+    },
+    {
+      "field": 3,
+      "name": "Batch Number",
+      "form_col": "",
+      "dtype": "INTEGER",
+      "size": "9",
+      "mandatory": "M",
+      "remark": "Value must start with 1."
+    },
+    {
+      "field": 4,
+      "name": "Count of Challan/transfer voucher Records",
+      "form_col": "",
+      "dtype": "INTEGER",
+      "size": "9",
+      "mandatory": "M",
+      "remark": "Count of total number of challans/transfer vouchers contained within the batch."
+    },
+    {
+      "field": 5,
+      "name": "Form Number",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "4",
+      "mandatory": "M",
+      "remark": "Value must be 140."
+    },
+    {
+      "field": 6,
+      "name": "Transaction Type (Not applicable)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 7,
+      "name": "Batch Updation Indicator (Not applicable)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 8,
+      "name": "Original Token Number (Token Number of Regular statement) - (Not applicable) of the statement",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 9,
+      "name": "Token no. of previous regular statement (Form no. 140).",
+      "form_col": "",
+      "dtype": "INTEGER",
+      "size": "15",
+      "mandatory": "O",
+      "remark": "If value present in field no. 52 is \"Y\", mandatory to mention 15 digit Token number of immediate previous regular statement for Form 140, else no value to be provided."
+    },
+    {
+      "field": 10,
+      "name": "Token Number of the statement submitted - (Not applicable)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 11,
+      "name": "Token Number date - (Not applicable)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 12,
+      "name": "Last TAN of Deductor / Collector ( Used for Verification) (Not applicable)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 13,
+      "name": "TAN of Deductor",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "10",
+      "mandatory": "M",
+      "remark": "Mention the 10 Character TAN of the deductor. Should be all CAPITALS."
+    },
+    {
+      "field": 14,
+      "name": "Receipt number (eight digit) provided by TIN",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "8",
+      "mandatory": "NA",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 15,
+      "name": "PAN of Deductor",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "10",
+      "mandatory": "M",
+      "remark": "Mandatory to mention the PAN of the Deductor. If deductor is not required to have a PAN mention PANNOTREQD"
+    },
+    {
+      "field": 16,
+      "name": "Assessment Yr",
+      "form_col": "",
+      "dtype": "INTEGER",
+      "size": "6",
+      "mandatory": "M",
+      "remark": "Assessment year e.g. value should be 202728 for Tax Year 2026-07. Value should be greater than or equal to 202728."
+    },
+    {
+      "field": 17,
+      "name": "Tax Year",
+      "form_col": "NA",
+      "dtype": "INTEGER",
+      "size": "6",
+      "mandatory": "M",
+      "remark": "Tax Year (YYYYYY) as per Act; e.g., 202627 for Tax Year 2026-27"
+    },
+    {
+      "field": 18,
+      "name": "Period",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "2",
+      "mandatory": "M",
+      "remark": "Valid values Q1, Q2, Q3, Q4 of the financial Year. Q1 for 1st Quarter, Q2 for 2nd Quarter, Q3 for 3rd Quarter and Q4 for 4th Quarter."
+    },
+    {
+      "field": 19,
+      "name": "Name of Deductor",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "75",
+      "mandatory": "M",
+      "remark": "Mention the Name of the Employer / Deductor I.e. Employer / Deductor who deducts tax. Only blank values or only special characters or only dots, spaces etc. (i.e. `~!@#$%^&*( )_+,./?;:’”[{]}\\|) are not allowed under this field."
+    },
+    {
+      "field": 20,
+      "name": "Deductor Address 6 (Country/Region)",
+      "form_col": "NA",
+      "dtype": "CHAR",
+      "size": "25",
+      "mandatory": "M",
+      "remark": "Mention the address line 6 of the Employer. Only special characters are not allowed under this field."
+    },
+    {
+      "field": 21,
+      "name": "Deductor Address1 (Flat/Door/Block number)",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "25",
+      "mandatory": "M",
+      "remark": "Mention the address line 1 of the Employer. Only special characters are not allowed under this field."
+    },
+    {
+      "field": 22,
+      "name": "Deductor Address2 (Post Office)",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "25",
+      "mandatory": "O",
+      "remark": "Mention the address line 2 of the Employer. Only special characters are not allowed under this field."
+    },
+    {
+      "field": 23,
+      "name": "Deductor Address3 (Road/Street/Block/Sector)",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "25",
+      "mandatory": "O",
+      "remark": "Mention the address line 3 of the Employer. Only special characters are not allowed under this field."
+    },
+    {
+      "field": 24,
+      "name": "Deductor Address4 (Area/locality)",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "25",
+      "mandatory": "O",
+      "remark": "Mention the address line 4 of the Employer. Only special characters are not allowed under this field."
+    },
+    {
+      "field": 25,
+      "name": "Deductor Address5 (District)",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "25",
+      "mandatory": "O",
+      "remark": "Mention the address line 5 of the Employer. Only special characters are not allowed under this field."
+    },
+    {
+      "field": 26,
+      "name": "Deductor's Address - State",
+      "form_col": "",
+      "dtype": "INTEGER",
+      "size": "2",
+      "mandatory": "M",
+      "remark": "Numeric code for state. For list of State codes, refer to the Annexure 1 below."
+    },
+    {
+      "field": 27,
+      "name": "Deductor's Address - Pincode",
+      "form_col": "",
+      "dtype": "INTEGER",
+      "size": "6",
+      "mandatory": "M",
+      "remark": "PIN Code of Deductor ."
+    },
+    {
+      "field": 28,
+      "name": "Deductor's Email ID",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "75",
+      "mandatory": "M",
+      "remark": "Valid E-mail should be provided.\n1. Email format must be checked -atleast @ and '.' should be mentioned. \n2. Both @ and '.' should be preceded and succeeded by atleast one character.\n3. At least one '.' should come after '@'.\n4. All printable characters allowed except '^' and space.\n5. This field is mandatory if no value is provided under field no. 42 i.e. \"Responsible Person's Email ID -1\" of Batch Header.\n E-mail id of deductor/collector or person responsible for deducting/collecting tax should be provided."
+    },
+    {
+      "field": 29,
+      "name": "Deductor Contact Country Code",
+      "form_col": "",
+      "dtype": "INTEGER",
+      "size": "5",
+      "mandatory": "M",
+      "remark": "Country calling code for deductor contact number (e.g., 91 for India)."
+    },
+    {
+      "field": 30,
+      "name": "Deductor Contact Number",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "10",
+      "mandatory": "M",
+      "remark": "Deductor contact number without country code; digits only. Max 15."
+    },
+    {
+      "field": 31,
+      "name": "Filler 1",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value to be specified."
+    },
+    {
+      "field": 32,
+      "name": "Deductor Type",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "1",
+      "mandatory": "M",
+      "remark": "Deductor category code to be mentioned as per Annexure 4"
+    },
+    {
+      "field": 33,
+      "name": "Name of Person responsible for Deduction",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "75",
+      "mandatory": "M",
+      "remark": "Mention the Name of Person responsible for paying salary on behalf of the deductor. Only blank values or only special characters or only dots, spaces etc. (i.e. `~!@#$%^&*( )_+,./?;:’”[{]}\\|) are not allowed under this field."
+    },
+    {
+      "field": 34,
+      "name": "Designation of the Person responsible for Deduction",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "20",
+      "mandatory": "M",
+      "remark": "Mention the designation of Person responsible for paying salary on behalf of the deductor. Only blank values or only special characters or only dots, spaces etc. (i.e. `~!@#$%^&*( )_+,./?;:’”[{]}\\|) are not allowed under this field."
+    },
+    {
+      "field": 35,
+      "name": "Responsible Person's Address1 (Flat/Door/Block number)",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "25",
+      "mandatory": "M",
+      "remark": "Mention the address line 1 of the responsible Person. Only special characters are not allowed under this field."
+    },
+    {
+      "field": 36,
+      "name": "Responsible Person's Address2 (Post Office)",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "25",
+      "mandatory": "O",
+      "remark": "Mention the address line 2 of the responsible Person. Only special characters are not allowed under this field."
+    },
+    {
+      "field": 37,
+      "name": "Responsible Person's Address3 (Road/Street/Block/Sector)",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "25",
+      "mandatory": "O",
+      "remark": "Mention the address line 3 of the responsible Person. Only special characters are not allowed under this field."
+    },
+    {
+      "field": 38,
+      "name": "Responsible Person's Address4 (Area/locality)",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "25",
+      "mandatory": "O",
+      "remark": "Mention the address line 4 of the responsible Person. Only special characters are not allowed under this field."
+    },
+    {
+      "field": 39,
+      "name": "Responsible Person's Address5 (District)",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "25",
+      "mandatory": "O",
+      "remark": "Mention the address line 5 of the responsible Person. Only special characters are not allowed under this field."
+    },
+    {
+      "field": 40,
+      "name": "Responsible Person's State",
+      "form_col": "",
+      "dtype": "INTEGER",
+      "size": "2",
+      "mandatory": "M",
+      "remark": "Numeric code for state. For list of State codes, refer to the Annexure 1 below."
+    },
+    {
+      "field": 41,
+      "name": "Responsible Person's PIN",
+      "form_col": "",
+      "dtype": "INTEGER",
+      "size": "6",
+      "mandatory": "M",
+      "remark": "PIN Code of Responsible Person ."
+    },
+    {
+      "field": 42,
+      "name": "Responsible Person's Email ID -1",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "75",
+      "mandatory": "M",
+      "remark": "Valid E-mail should be provided.\n1. Email format must be checked -atleast @ and '.' should be mentioned. \n2. Both @ and '.' should be preceded and succeeded by atleast one character.\n3. At least one '.' should come after '@'.\n4. All printable characters allowed except '^' and space.\n5. This field is mandatory if no value is provided under field no. 28 i.e. \"Deductor's Email ID\" of Batch Header.\n E-mail id of deductor/collector or person responsible for deducting/collecting tax should be provided."
+    },
+    {
+      "field": 43,
+      "name": "Responsible Persons country region",
+      "form_col": "NA",
+      "dtype": "CHAR",
+      "size": "25",
+      "mandatory": "M",
+      "remark": "Mention the country of the responsible person . Only special characters are not allowed under this field."
+    },
+    {
+      "field": 44,
+      "name": "Responsible Person Contact Country/Region",
+      "form_col": "NA",
+      "dtype": "INTEGER",
+      "size": "5",
+      "mandatory": "M",
+      "remark": "Country calling code for person responsible contact number (e.g., 91)."
+    },
+    {
+      "field": 45,
+      "name": "Responsible Person Contact Number",
+      "form_col": "NA",
+      "dtype": "CHAR",
+      "size": "10",
+      "mandatory": "M",
+      "remark": "Contact number (digits) for person responsible; max 10."
+    },
+    {
+      "field": 46,
+      "name": "Filler 3",
+      "form_col": "NA",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 47,
+      "name": "Batch Total of - Total of Deposit Amount as per Challan",
+      "form_col": "",
+      "dtype": "INTEGER",
+      "size": "15",
+      "mandatory": "M",
+      "remark": "Mention the Total of Deposit Amount as per Challan.The value here should be same as sum of values in field 'Total of Deposit Amount as per Challan' in the 'Challan Detail' record ( please refer to the Challan Detail' record section below ). Paisa Field (Decimal Value) of the Amount must be 00."
+    },
+    {
+      "field": 48,
+      "name": "Unmatched challan count",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "9",
+      "mandatory": "O",
+      "remark": "No value to be specified."
+    },
+    {
+      "field": 49,
+      "name": "Count of Salary Details Records (Not applicable)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 50,
+      "name": "Batch Total of - Gross Total Income as per Salary Detail (Not applicable)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 51,
+      "name": "Filler 4",
+      "form_col": "NA",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 52,
+      "name": "Whether regular statement for Form 140 filed for earlier period",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "1",
+      "mandatory": "M",
+      "remark": "\"Y\" if regular statement for Form 140 has been filed for earlier period, else value \"N\" should be provided."
+    },
+    {
+      "field": 53,
+      "name": "Last Deductor Type",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "1",
+      "mandatory": "NA",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 54,
+      "name": "State Name",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "2",
+      "mandatory": "O",
+      "remark": "Numeric code for state should be mentioned as per Annexure 5. Mandatory if deductor type is State Govt. (code S), Statutory body - State Govt. (code E), Autonomous body - State Govt. code H) and Local Authority - State Govt. (code N). For other deductor category no value should be provided."
+    },
+    {
+      "field": 55,
+      "name": "Filler 5",
+      "form_col": "NA",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 56,
+      "name": "Filler 6",
+      "form_col": "NA",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 57,
+      "name": "Ministry Name",
+      "form_col": "NA",
+      "dtype": "CHAR",
+      "size": "3",
+      "mandatory": "O",
+      "remark": "Numeric code for Ministry name should be provided. For list of Ministry name codes, refer to the Annexure 3 below. Mandatory for following deductor types:\nCentral Govt (A), Statutory body - Central Govt. (D) & Autonomous body - Central Govt. (G). Optional for deductor type Statutory body - State Govt. (E), Autonomous body - State Govt. (H), Local Authority - Central Govt. (L) & Local Authority -State Govt. (N). \n\nFor other deductor type no value should be provided."
+    },
+    {
+      "field": 58,
+      "name": "Ministry Name (Others)",
+      "form_col": "NA",
+      "dtype": "CHAR",
+      "size": "150",
+      "mandatory": "O",
+      "remark": "If numeric code '99' (i.e. Other) is provided in Ministry Name field then value in Ministry Name \"Other\" field should be provided"
+    },
+    {
+      "field": 59,
+      "name": "PAN of Responsible Person",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "10",
+      "mandatory": "M",
+      "remark": "Quote ten digit valid PAN of the person responsible (as quoted in field no. 33 above) for deducting tax."
+    },
+    {
+      "field": 60,
+      "name": "Filler 7",
+      "form_col": "NA",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 61,
+      "name": "Filler 8",
+      "form_col": "NA",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 62,
+      "name": "Filler 9",
+      "form_col": "NA",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 63,
+      "name": "Filler 10",
+      "form_col": "NA",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 64,
+      "name": "Filler 11",
+      "form_col": "NA",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 65,
+      "name": "Filler 12",
+      "form_col": "NA",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 66,
+      "name": "Filler 13",
+      "form_col": "NA",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 67,
+      "name": "Filler 14",
+      "form_col": "NA",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 68,
+      "name": "Account Office Identification Number (AIN) of PAO/ TO/ CDDO",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "7",
+      "mandatory": "O",
+      "remark": "Mandatory to mention value only in case the deductor category is \"Central Govt.\" or \"State Govt.\" and mode of deposit of TDS/TCS is through 'Book Entry' i.e., value in the field no. 37 of challan/ transfer voucher details is \"Y\". Mention AIN of the below:\n1) Pay and Account Office (PAO)\n2) Treasure Office (TO)\n3) Cheque Drawing and Disbursing Officer (CDDO)"
+    },
+    {
+      "field": 69,
+      "name": "Goods and Service Tax Number (GSTN)",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "15",
+      "mandatory": "O",
+      "remark": "Mention 15 digit valid Goods and Service Tax Number (GSTIN)."
+    },
+    {
+      "field": 70,
+      "name": "Count of Section 194P Detail Records (Not applicable)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 71,
+      "name": "Batch Total of - Gross Total Income as per Section 194P Detail (Not applicable)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 72,
+      "name": "Record Hash (Not applicable)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    }
+  ],
+  "CD": [
+    {
+      "field": 1,
+      "name": "Line Number",
+      "form_col": "",
+      "dtype": "INTEGER",
+      "size": "9",
+      "mandatory": "M",
+      "remark": "Running sequence number for each line in the file"
+    },
+    {
+      "field": 2,
+      "name": "Record Type",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "2",
+      "mandatory": "M",
+      "remark": "Value \"CD\" (Challan Detail) for Challan Detail record"
+    },
+    {
+      "field": 3,
+      "name": "Batch Number",
+      "form_col": "",
+      "dtype": "INTEGER",
+      "size": "9",
+      "mandatory": "M",
+      "remark": "Value should be same as 'Batch Number' field in 'Batch Header' record."
+    },
+    {
+      "field": 4,
+      "name": "Challan-Detail Record Number",
+      "form_col": "A",
+      "dtype": "INTEGER",
+      "size": "9",
+      "mandatory": "M",
+      "remark": "Running serial number for 'Challan Detail' records in a batch. Should start with 1"
+    },
+    {
+      "field": 5,
+      "name": "Count of Deductee / Party Records",
+      "form_col": "",
+      "dtype": "INTEGER",
+      "size": "9",
+      "mandatory": "M",
+      "remark": "Count of total number of 'Deductee Detail Records' within e-TDS statement. Value Should be >= 0"
+    },
+    {
+      "field": 6,
+      "name": "NIL Challan Indicator",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "1",
+      "mandatory": "M",
+      "remark": "Value should be \"N\". In cases where no tax has been deposited in bank, value should be \"Y\" (applicable in case of NIL return)"
+    },
+    {
+      "field": 7,
+      "name": "Challan Updation Indicator (Not applicable)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 8,
+      "name": "Total tax Deducted",
+      "form_col": "B",
+      "dtype": "INTEGER",
+      "size": "15",
+      "mandatory": "M",
+      "remark": "Mention the amount of \"Income Tax\" out of the 'Total tax deposited' through Challan. No fractional portion is allowed in this field (value should be integer) , I.e. value \"1000.50\" will not be allowed, whereas value \"1000.00\" will be considered to be valid value."
+    },
+    {
+      "field": 9,
+      "name": "Total Interest",
+      "form_col": "C",
+      "dtype": "INTEGER",
+      "size": "15",
+      "mandatory": "M",
+      "remark": "Mention the amount of \"Interest\" out of the 'Total tax deposited' through Challan. No fractional portion is allowed in this field (value should be integer) , I.e. value \"1000.50\" will not be allowed, whereas value \"1000.00\" will be considered to be valid value."
+    },
+    {
+      "field": 10,
+      "name": "Total fee",
+      "form_col": "D",
+      "dtype": "INTEGER",
+      "size": "15",
+      "mandatory": "M",
+      "remark": "Mention the amount of \"Fee\" out of the 'Total tax deposited' through Challan. No fractional portion is allowed in this field (value should be integer) , I.e. value \"1000.50\" will not be allowed, whereas value \"1000.00\" will be considered to be valid value."
+    },
+    {
+      "field": 11,
+      "name": "Total Penalty/ Others",
+      "form_col": "E",
+      "dtype": "INTEGER",
+      "size": "15",
+      "mandatory": "M",
+      "remark": "Mention the amount of \"Penalty\" out of the 'Total tax deposited' through Challan. No fractional portion is allowed in this field (value should be integer) , I.e. value \"1000.50\" will not be allowed, whereas value \"1000.00\" will be considered to be valid value."
+    },
+    {
+      "field": 12,
+      "name": "Total of Deposit Amount as per Challan/Total Amount adjusted through Book Adjustment (Total of values in B+C+D+E)",
+      "form_col": "F",
+      "dtype": "INTEGER",
+      "size": "15",
+      "mandatory": "M",
+      "remark": "Mention the amount of 'Total tax deposited' through Challan. No fractional portion is allowed in this field (value should be integer) , I.e. value \"1000.50\" will not be allowed, whereas value \"1000.00\" will be considered to be valid value. \nValue in this field should be equal to total of values in column numbers B, C, D, E.\n\nIn case of challan (i.e. value under field 13 is C), value in this field should be greater than or equal to:\nTotal tax deposited amount (field no. 25 of all deductee details mapped to corresponding challan) + Interest allocation (field no. 24 of challan details) + Other allocation (field no. 25 of challan details) + Fee amount (field no. 10 of challan details)\n\nIn case of transfer voucher (i.e. value under field 13 is B), value in this field should be greater than or equal to:\nTotal tax deposited amount (field no. 25 of all deductee details mapped to corresponding challan) + Interest allocation (field no. 24 of challan details) + Other allocation (field no. 25 of challan details)"
+    },
+    {
+      "field": 13,
+      "name": "Mode of payment of tax (by way of challan/by way of book adjustment)",
+      "form_col": "G",
+      "dtype": "CHAR",
+      "size": "1",
+      "mandatory": "O",
+      "remark": "Allowed values C or B\nIf Transfer Voucher Number is provided this is mandatory and only allowed value is 'B'. If Bank Challan Number is provided , then mention value as \"C\". For a Nil statement no value to be provided.\nValue 'C' to be provided, if values under field no. 15 of DD details are '1059', '1034', '1038' or '1061'."
+    },
+    {
+      "field": 14,
+      "name": "Last BSR Code/ Form 24G Receipt Number ( Used for Verification) (Not applicable)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 15,
+      "name": "BSR Code/ Form 24G Receipt Number",
+      "form_col": "H",
+      "dtype": "INTEGER",
+      "size": "7",
+      "mandatory": "M",
+      "remark": "In case TDS deposited by \n1) Challan:BSR Code of the receiving branch\n2) Book Adjustment: Quote seven digit receipt number provided by AO. Applicable for govt. deductor/ collector where TDS is deposited by book entry. \n3) No value to be quoted in case of Nil Statement (value in field \"NIL Challan Indicator\" field is \"Y\")."
+    },
+    {
+      "field": 16,
+      "name": "Last Bank Challan No/DDO Serial Number ( Used for Verification) (Not applicable)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 17,
+      "name": "Bank Challan No/DDO Serial Number",
+      "form_col": "J",
+      "dtype": "INTEGER",
+      "size": "5",
+      "mandatory": "O",
+      "remark": "Challan Number issued by Bank if value in field G is C\nDDO Serial Number if value in column G is B\n Applicable to both Govt and Non Govt, Non-Nil statements. No value is required to be provided in case of a NIL return (I.e. the cases in which the value in field 'NIL Challan Indicator' is \"Y\")."
+    },
+    {
+      "field": 18,
+      "name": "Last Date of 'Bank Challan No / DDO Serial Number' ( Used for Verification) (Not applicable)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 19,
+      "name": "Date of 'Bank Challan / Transfer Voucher' (DDMMYYYY)",
+      "form_col": "I",
+      "dtype": "DATE",
+      "size": "8",
+      "mandatory": "M",
+      "remark": "Date of payment of tax to Govt. It can be any date on or after 1st April of immediate previous financial year for which the return is prepared. Value should be equal to last date of respective quarter if the value in field \"NIL Challan Indicator\" is \"Y\". \nDate of 'Bank Challan / Book Adjustment' should be within the respective quarter for which statement is being filed, in case of minor head code value selected under field no. 23 is '100'. Also this date has to be on or before date present under field 'Date on which Amount paid / Credited' field no. 19 of DD record (which is mapped to this challan with minor head code value '100')"
+    },
+    {
+      "field": 20,
+      "name": "Last Total of Deposit Amount as per Challan ( Used for Verification) (Not applicable)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 21,
+      "name": "Total Tax Deposited Amount as per Collectee annexure (Total Sum of column no. L) for the specified challan",
+      "form_col": "",
+      "dtype": "DECIMAL",
+      "size": "15",
+      "mandatory": "M",
+      "remark": "Mention the sum of 'Deductee Deposit Amount' of the underlying Deductee Records"
+    },
+    {
+      "field": 22,
+      "name": "Total Tax Deducted Amount as per Deductor annexure (Total sum of Column no. J) for the specified challan",
+      "form_col": "",
+      "dtype": "DECIMAL",
+      "size": "15",
+      "mandatory": "M",
+      "remark": "Total sum of tax collected of the deductee details for the respective Challan"
+    },
+    {
+      "field": 23,
+      "name": "Minor Head of Challan",
+      "form_col": "K",
+      "dtype": "INTEGER",
+      "size": "3",
+      "mandatory": "O",
+      "remark": "Mention value as marked on challan - refer Annexure 7 for minor head\nFor Minor head code 100:\nIf DD details are having section code '1059', '1034', '1038' or '1061', then minimum 1 deductee should be there for challans having minor head code 100."
+    },
+    {
+      "field": 24,
+      "name": "Interest Allocation",
+      "form_col": "",
+      "dtype": "INTEGER",
+      "size": "15",
+      "mandatory": "M",
+      "remark": "Mention interest allocation. Only integer values are allowed. The value of 1000 should be represented as 1000.00 in this field. Mention value as provided in field no. 9 of CD details."
+    },
+    {
+      "field": 25,
+      "name": "Other Allocation",
+      "form_col": "",
+      "dtype": "INTEGER",
+      "size": "15",
+      "mandatory": "M",
+      "remark": "Mention fees allocation. Only integer values are allowed for this field. The value of 1000 should be represented as 1000.00 in this field. Mention value as provided in field no. 11 of CD details."
+    },
+    {
+      "field": 26,
+      "name": "Filler 3",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 27,
+      "name": "Filler 4",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 28,
+      "name": "Filler 5",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 29,
+      "name": "Filler 6",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 30,
+      "name": "Record Hash (Not applicable)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    }
+  ],
+  "DD": [
+    {
+      "field": 1,
+      "name": "Line Number",
+      "form_col": "",
+      "dtype": "INTEGER",
+      "size": "9",
+      "mandatory": "M",
+      "remark": "Running Sequence Number for each line in the file"
+    },
+    {
+      "field": 2,
+      "name": "Record Type",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "2",
+      "mandatory": "M",
+      "remark": "Value \"DD\"(Deductee Detail) for Deductee-detail record"
+    },
+    {
+      "field": 3,
+      "name": "Batch Number",
+      "form_col": "",
+      "dtype": "INTEGER",
+      "size": "9",
+      "mandatory": "M",
+      "remark": "Value should be same as 'Batch Number' field in 'Batch Header' record"
+    },
+    {
+      "field": 4,
+      "name": "Deductee / Party Detail Record No",
+      "form_col": "A",
+      "dtype": "INTEGER",
+      "size": "9",
+      "mandatory": "M",
+      "remark": "Running serial no to indicate detail record no."
+    },
+    {
+      "field": 5,
+      "name": "Challan reference Number",
+      "form_col": "B",
+      "dtype": "INTEGER",
+      "size": "9",
+      "mandatory": "M",
+      "remark": "Running serial number for 'Challan Detail' records in a batch."
+    },
+    {
+      "field": 6,
+      "name": "Mode",
+      "form_col": "",
+      "dtype": "CHAR",
+      "size": "1",
+      "mandatory": "M",
+      "remark": "Value should be O"
+    },
+    {
+      "field": 7,
+      "name": "Last deductee PAN ( Used for Verification) (Not applicable)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 8,
+      "name": "Deductee's PAN",
+      "form_col": "C",
+      "dtype": "CHAR",
+      "size": "10",
+      "mandatory": "M",
+      "remark": "PAN of the Employee. If available should be Valid PAN Format. There may be Employees who have not been issued PAN however who have applied for a PAN and have given adequate declaration to the deductor indicating the same. In such cases, deduction schedule in the statement will not reflect PAN and instead state PAN Ref. Number for the Employee. The deductor will however have to mention ‘PANAPPLIED’ in place of PAN. If the Employee is not sure of the PAN format he will have to mention 'PANINVALID'. However if the Employee has not given any declaration, deductor will have to mention ‘PANNOTAVBL’ in place of PAN. \n\nFor section codes '1059', '1034', '1038' or '1061', no default PAN values should be allowed under this field. That means default PAN values in case of non-availablity of valid PAN ('PANNOTAVBL', 'PANAPPLIED', 'PANINVALID') will not be allowed for these sections."
+    },
+    {
+      "field": 9,
+      "name": "Name of the Deductee",
+      "form_col": "D",
+      "dtype": "CHAR",
+      "size": "75",
+      "mandatory": "M",
+      "remark": "Mention the Name of the deductee."
+    },
+    {
+      "field": 10,
+      "name": "Remarks 1 (for future use)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 11,
+      "name": "Remarks 2 (for future use)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 12,
+      "name": "Remarks 3 (for future use)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 13,
+      "name": "Remarks 4 (for future use)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 14,
+      "name": "Remarks 5 (for future use)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 15,
+      "name": "Section Code",
+      "form_col": "E",
+      "dtype": "CHAR",
+      "size": "4",
+      "mandatory": "M",
+      "remark": "As per Annexure 2"
+    },
+    {
+      "field": 16,
+      "name": "Remarks 6 (for future use)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 17,
+      "name": "Remarks 7 (for future use)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 18,
+      "name": "Whether the total amount of tax deducted as mentioned in Column (J) has been deposited (Yes/No)",
+      "form_col": "K",
+      "dtype": "CHAR",
+      "size": "1",
+      "mandatory": "M",
+      "remark": "Value should either \"Y\" or \"N\""
+    },
+    {
+      "field": 19,
+      "name": "Date of payment / Credited (dd/mm/yyyy)",
+      "form_col": "F",
+      "dtype": "DATE",
+      "size": "8",
+      "mandatory": "M",
+      "remark": "Date on which Amount paid/ Credited /Debited to deductee. The value under the “Date of Payment / Date on which Amount Collected / Debited” field shall fall within the quarter and financial year to which the statement pertains·"
+    },
+    {
+      "field": 20,
+      "name": "Amount Paid/ Credited",
+      "form_col": "G",
+      "dtype": "DECIMAL",
+      "size": "15",
+      "mandatory": "M",
+      "remark": "Mention the Amount paid to deductee. Value should always be greater than 0.00"
+    },
+    {
+      "field": 21,
+      "name": "Grossing up Indicator (Not applicable)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 22,
+      "name": "Amount of cash withdrawal in excess of Rs. 1 crore as referred to in section 393(3) [Table: Sl. No. 5] (in case of person other than cooperative society)",
+      "form_col": "H",
+      "dtype": "DECIMAL",
+      "size": "15",
+      "mandatory": "O",
+      "remark": "Mandatory to mention value under this field only when value under field Section Code (field no. 15) of DD records is \"section 393(3), i.e. section code 1065\", else no value should be specified."
+    },
+    {
+      "field": 23,
+      "name": "Amount of cash withdrawal which is in excess of Rs. 3 Crore for cases covered by section 393(3) [Table: Sl. No. 5] (in case of co- operative societies)",
+      "form_col": "I",
+      "dtype": "DECIMAL",
+      "size": "15",
+      "mandatory": "O",
+      "remark": "Mandatory to mention value under this field only when value under field Section Code (field no. 15) of DD records is \"section 393(3), i.e. section code 1064\", else no value should be specified."
+    },
+    {
+      "field": 24,
+      "name": "Total Tax Deducted",
+      "form_col": "J",
+      "dtype": "DECIMAL",
+      "size": "15",
+      "mandatory": "M",
+      "remark": "Decimal with precision value 2 is allowed. \nIn case value present under field 15 is 1059', '1034', '1038' or '1061', then value under this field should be 0.00."
+    },
+    {
+      "field": 25,
+      "name": "Total Tax Deposited",
+      "form_col": "L",
+      "dtype": "DECIMAL",
+      "size": "15",
+      "mandatory": "M",
+      "remark": "Decimal with precision value 2 is allowed. \nIn case value present under field 15 is 1059', '1034', '1038' or '1061', then value under this field should be 0.00."
+    },
+    {
+      "field": 26,
+      "name": "Last total Tax deducted (Used for Verification) (Not Applicable)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 27,
+      "name": "Date of deduction (dd/mm/yyyy)",
+      "form_col": "N",
+      "dtype": "DATE",
+      "size": "8",
+      "mandatory": "M",
+      "remark": "Date of tax deduction. Mandatory if 'Total tax deducted' is greater than Zero (0.00) . No value needs to be specified if 'Total Tax Deducted' is Zero (0.00) . Date to be mentioned in DDMMYYYY format. Also, this date should not be less than the relevant quarter. E.g. If the statement is being prepared for Q2 of Tax Year 2026-27, then date of deduction should be greater than or equal to 01/07/2026."
+    },
+    {
+      "field": 28,
+      "name": "Rate at which Tax Deducted",
+      "form_col": "M",
+      "dtype": "DECIMAL",
+      "size": "7",
+      "mandatory": "M",
+      "remark": "Rate at which Tax is deducted, with decimal precision of 4 point. E.g. if the rate is 2 then the same should be mentioned as 2.0000. If value in field 'Total tax collected' is 0.00 then rate at which tax deducted should be 0.0000\nIn case value present under field 15 is 1059', '1034', '1038' or '1061', then value under this field should be 0.00."
+    },
+    {
+      "field": 29,
+      "name": "Remarks 9 (for future use)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 30,
+      "name": "Remarks 10 (for future use)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 31,
+      "name": "Unique Identification \nNumber of Form No. \n121 submitted by the \ndeductee",
+      "form_col": "Q",
+      "dtype": "CHAR",
+      "size": "26",
+      "mandatory": "O",
+      "remark": "Mention value of Unique Identification Number of Form No. 121.\nValue should be 26 characters."
+    },
+    {
+      "field": 32,
+      "name": "Reason for non-deduction\n/ Lower deduction / Higher deduction / Threshold / Transporter etc.",
+      "form_col": "O",
+      "dtype": "CHAR",
+      "size": "1",
+      "mandatory": "O",
+      "remark": "If applicable quote value (code) as per Annexure 6_ else no value to be provided."
+    },
+    {
+      "field": 33,
+      "name": "Certificate number of certificate issued under section 395 for non-deduction /lower deduction",
+      "form_col": "P",
+      "dtype": "CHAR",
+      "size": "15",
+      "mandatory": "O",
+      "remark": "Mandatory to mention 10 or 15 digit alphanumeric value if, \"A\" is mentioned in field no. 32 (Remark field)."
+    },
+    {
+      "field": 34,
+      "name": "Filler 1",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 35,
+      "name": "Filler 2",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 36,
+      "name": "Filler 3",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 37,
+      "name": "Filler 4",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 38,
+      "name": "Filler 5",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 39,
+      "name": "Filler 6",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 40,
+      "name": "Filler 7",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 41,
+      "name": "Filler 8",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 42,
+      "name": "Last Total Tax Deposited ( Used for Verification) (Not applicable)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 43,
+      "name": "Filler 10",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 44,
+      "name": "Filler 11",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    },
+    {
+      "field": 45,
+      "name": "Record Hash (Not applicable)",
+      "form_col": "",
+      "dtype": "NA",
+      "size": "0",
+      "mandatory": "O",
+      "remark": "No value should be specified"
+    }
+  ]
+}

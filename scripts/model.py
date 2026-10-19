@@ -49,20 +49,13 @@ PAN_4TH = {
     "T": "T",  # Trust
 }
 
-# Deductor category (Annexure 4).
-DEDUCTOR_CATEGORIES = {
-    "A": "Association of persons",
-    "B": "Body of individuals",
-    "C": "Company (other than government)",
-    "F": "Firm / LLP",
-    "G": "Government",
-    "H": "Hindu undivided family",
-    "J": "Artificial juridical person",
-    "K": "Company (deductor category K)",
-    "L": "Local authority",
-    "P": "Individual",
-    "T": "Trust",
-}
+# The deductor category (Annexure 4) lives in codes.py, sourced from the
+# department's workbook. An earlier draft of this file carried a guess at the
+# table here and it was a different scheme altogether, so there is deliberately
+# no second copy.
+#
+# The text-PAN placeholders the format allows in place of a real deductee PAN.
+PAN_PLACEHOLDERS = ("PANAPPLIED", "PANINVALID", "PANNOTAVBL")
 
 
 class ModelError(ValueError):
@@ -174,6 +167,7 @@ class Challan:
     total: Decimal = Decimal("0.00")
     minor_head: str = "200"
     nature: str = "C"
+    nil_challan: str = "N"
     tds_section: str = ""
     remarks: str = ""
 
@@ -197,6 +191,7 @@ class Challan:
             penalty=d(raw.get("penalty"), "challan penalty"),
             minor_head=str(raw.get("minor_head", "200") or "200"),
             nature=str(raw.get("nature", "C") or "C"),
+            nil_challan=str(raw.get("nil_challan", "N") or "N").upper()[:1],
             tds_section=str(raw.get("tds_section", "") or ""),
             remarks=str(raw.get("remarks", "") or ""),
         )
@@ -209,6 +204,7 @@ class Challan:
             "no": self.no, "bsr_code": self.bsr_code,
             "challan_date": self.challan_date, "challan_serial": self.challan_serial,
             "minor_head": self.minor_head, "nature": self.nature,
+            "nil_challan": self.nil_challan,
             "tax": money_str(self.tax), "surcharge": money_str(self.surcharge),
             "cess": money_str(self.cess), "interest": money_str(self.interest),
             "fee": money_str(self.fee), "penalty": money_str(self.penalty),
@@ -230,8 +226,20 @@ class Deductee:
     rate: str = ""
     surcharge: Decimal = Decimal("0.00")
     cess: Decimal = Decimal("0.00")
-    pan_status: str = "Y"
+    # DD field 18. "Y" when the tax deducted on this row has been deposited.
+    deposited: str = "Y"
+    # DD field 32, a flag from Annexure 6 (lower/nil/higher deduction, threshold,
+    # transporter). Blank is the normal case and means no flag.
+    reason_code: str = ""
+    # DD field 33, required when reason_code is "A".
     certificate_no: str = ""
+    # DD field 31, the 26-character Form 121 reference.
+    form121: str = ""
+    # DD fields 22 and 23, the cash-withdrawal amounts for sections 1064/1065.
+    # See the note on these two fields in layout140.py: the workbook's own
+    # remarks name the sections the other way round.
+    cash_withdrawal_1cr: Decimal = Decimal("0.00")
+    cash_withdrawal_3cr: Decimal = Decimal("0.00")
     remarks: str = ""
     source_ref: str = ""
     # Salary-only fields, kept optional so one model serves both forms.
@@ -248,8 +256,24 @@ class Deductee:
         ch = (self.pan or "")[3:4].upper()
         return PAN_4TH.get(ch, "")
 
+    @property
+    def pan_is_placeholder(self) -> bool:
+        return (self.pan or "").upper() in PAN_PLACEHOLDERS
+
     @classmethod
     def from_dict(cls, raw: dict) -> "Deductee":
+        raw = dict(raw)
+        # Compatibility: the first version of this contract used ``pan_status``
+        # for what the format splits into two fields - field 18 (was the tax
+        # deposited?) and field 32 (why was less or nothing deducted?). A bare
+        # Y/N was the deposit indicator; anything else was a reason flag.
+        legacy = str(raw.pop("pan_status", "") or "").strip().upper()
+        if legacy:
+            if legacy in ("Y", "N"):
+                raw.setdefault("deposited", legacy)
+            else:
+                raw.setdefault("reason_code", legacy)
+
         row = cls(
             challan_no=int(raw["challan_no"]),
             pan=str(raw.get("pan", "") or "").strip().upper(),
@@ -262,8 +286,12 @@ class Deductee:
             rate=str(raw.get("rate", "") or ""),
             surcharge=d(raw.get("surcharge"), "deductee surcharge"),
             cess=d(raw.get("cess"), "deductee cess"),
-            pan_status=str(raw.get("pan_status", "Y") or "Y").strip().upper(),
+            deposited=str(raw.get("deposited", "Y") or "Y").strip().upper()[:1],
+            reason_code=str(raw.get("reason_code", "") or "").strip().upper(),
             certificate_no=str(raw.get("certificate_no", "") or ""),
+            form121=str(raw.get("form121", "") or ""),
+            cash_withdrawal_1cr=d(raw.get("cash_withdrawal_1cr"), "cash withdrawal over 1 crore"),
+            cash_withdrawal_3cr=d(raw.get("cash_withdrawal_3cr"), "cash withdrawal over 3 crore"),
             remarks=str(raw.get("remarks", "") or ""),
             source_ref=str(raw.get("source_ref", "") or ""),
         )
@@ -279,9 +307,12 @@ class Deductee:
             "deduction_date": self.deduction_date,
             "amount_paid": money_str(self.amount_paid), "tds": money_str(self.tds),
             "surcharge": money_str(self.surcharge), "cess": money_str(self.cess),
-            "rate": self.rate, "pan_status": self.pan_status,
-            "certificate_no": self.certificate_no, "remarks": self.remarks,
-            "source_ref": self.source_ref,
+            "rate": self.rate, "deposited": self.deposited,
+            "reason_code": self.reason_code, "certificate_no": self.certificate_no,
+            "form121": self.form121,
+            "cash_withdrawal_1cr": money_str(self.cash_withdrawal_1cr),
+            "cash_withdrawal_3cr": money_str(self.cash_withdrawal_3cr),
+            "remarks": self.remarks, "source_ref": self.source_ref,
         }
         for key in ("salary_income", "total_income", "net_tax"):
             val = getattr(self, key)
@@ -354,17 +385,33 @@ class Statement:
         }
 
     def allocation(self) -> list[dict]:
-        """Per-challan allocation with the remaining balance, which is the check
-        that catches almost every real reconciliation failure."""
+        """Per-challan allocation against the tax on that challan.
+
+        The utility does not require the two to be equal. The official rule on
+        CD field 12 is that the total deposited must be *at least* the deductee
+        tax earmarked to that challan plus the interest, other and fee
+        allocations, so a challan paid at a round figure with the odd rupees
+        left over is accepted. What is never accepted is allocating more tax to
+        a challan than was deposited against it, so ``over_by`` is the number
+        that matters and ``unallocated`` is reported for the workpaper.
+
+        An earlier version of this pipeline demanded equality and refused to
+        build otherwise, which would have forced a made-up figure on to a
+        perfectly good filing.
+        """
         out = []
         for ch in self.challans:
             rows = [r for r in self.deductees if r.challan_no == ch.no]
-            allocated = sum((r.tds for r in rows), Decimal("0.00"))
+            allocated = sum((r.total_tds for r in rows), Decimal("0.00"))
+            available = ch.all_tax
             out.append({
                 "no": ch.no, "serial": ch.challan_serial, "date": ch.challan_date,
-                "deposited": ch.total, "challan_tax": ch.tax,
-                "allocated": allocated, "remaining": ch.tax - allocated,
-                "rows": len(rows),
+                "deposited": ch.total, "challan_tax": available,
+                "allocated": allocated, "remaining": available - allocated,
+                "over_by": allocated - available,
+                "unallocated": max(available - allocated, Decimal("0.00")),
+                "interest": ch.interest, "fee": ch.fee, "penalty": ch.penalty,
+                "nature": ch.nature, "minor_head": ch.minor_head, "rows": len(rows),
             })
         return out
 
@@ -446,19 +493,27 @@ quarter              "Q1".."Q4"
 correction           {"original_token": "...", "correction_type": "..."} when upload_type is C
 
 deductor             tan, pan, name, category (Annexure 4), address{},
-                     email, std_code, phone, gstin
-responsible_person   name, designation, pan, address{}, email, phone
+                     email, country_code, phone, gstin,
+                     regular_earlier ("Y"/"N"), token_previous, state_name,
+                     ministry_code, ministry_name, ain
+responsible_person   name, designation, pan, address{}, email,
+                     country_code, phone
 
 challans[]           no, bsr_code, challan_date, challan_serial, tax,
                      surcharge, cess, interest, fee, penalty, total,
-                     minor_head, nature, tds_section
+                     minor_head, nature ("C" bank challan, "B" book adjustment),
+                     tds_section
 deductees[]          challan_no, pan, name, section, payment_date,
                      deduction_date, amount_paid, tds, surcharge, cess,
-                     rate, pan_status, certificate_no, remarks, source_ref
+                     rate, deposited ("Y"/"N"), reason_code (Annexure 6),
+                     certificate_no, form121, cash_withdrawal_1cr,
+                     cash_withdrawal_3cr, remarks, source_ref
                      salary form only: salary_income, total_income, net_tax
 
 flags[]              {"level": "warn|error", "code": "...", "message": "...", "rows": [...]}
 pending[]            {"field": "...", "why": "...", "owner": "client|us", "blocking": true}
 
 Dates are DD-MM-YYYY. Amounts are strings or numbers, normalised to 2 dp.
+Amounts written to the file must be whole rupees on the challan record, because
+the format allows no fractional portion there.
 """

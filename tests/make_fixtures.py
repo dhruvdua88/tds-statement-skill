@@ -71,7 +71,7 @@ def statement_140() -> dict:
             "gstin": "",
             "address": {
                 "line1": "PLOT 1, INDUSTRIAL AREA", "line2": "", "line3": "PHASE II",
-                "line4": "SONEPAT", "line5": "HARYANA", "state_code": "11",
+                "line4": "SONEPAT", "line5": "HARYANA", "state_code": "12",
                 "pin": "131001", "country": "INDIA",
             },
         },
@@ -80,7 +80,7 @@ def statement_140() -> dict:
             "email": "director@example.in", "country_code": "91", "phone": "9810000001",
             "address": {
                 "line1": "PLOT 1, INDUSTRIAL AREA", "line2": "", "line3": "PHASE II",
-                "line4": "SONEPAT", "line5": "HARYANA", "state_code": "11",
+                "line4": "SONEPAT", "line5": "HARYANA", "state_code": "12",
                 "pin": "131001", "country": "INDIA",
             },
         },
@@ -90,7 +90,7 @@ def statement_140() -> dict:
                 "challan_no": c, "name": n, "pan": p, "section": s,
                 "amount_paid": a, "tds": t, "rate": r,
                 "payment_date": pay, "deduction_date": ded,
-                "pan_status": "Y", "source_ref": f"fixture row {i + 1}",
+                "deposited": "Y", "source_ref": f"fixture row {i + 1}",
             }
             for i, (c, n, p, s, a, t, r, pay, ded) in enumerate(ROWS)
         ],
@@ -169,7 +169,7 @@ def statement_138() -> dict:
             "challan_no": 1, "name": n, "pan": p, "section": "1002",
             "amount_paid": amt, "tds": tds, "rate": "",
             "payment_date": "31-08-2026", "deduction_date": "31-08-2026",
-            "pan_status": "Y", "source_ref": f"salary fixture row {i + 1}",
+            "deposited": "Y", "source_ref": f"salary fixture row {i + 1}",
         }
         for i, (n, p, amt, tds) in enumerate(rows)
     ]

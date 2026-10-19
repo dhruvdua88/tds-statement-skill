@@ -7,12 +7,17 @@ are taken from the official file-format workbook of the version named in
 utility accepted field by field (see ``tests/test_reference_statement.py``).
 
 The official remarks, where they impose a rule, are quoted on the field they
-belong to. Two of them account for most of the fiddly failures:
+belong to. Three of them account for most of the fiddly failures:
 
 * the deductee serial in DD field 4 is a running number across the whole
   statement, not per challan, and must strictly increase;
-* the allocation fields on the challan record must equal the interest and other
-  amounts on that challan, not the whole-batch figures.
+* nothing on the challan record may carry paise. "1000.50" is rejected and
+  "1000.00" is accepted, so amounts are rounded to whole rupees before a
+  challan is written;
+* the allocation fields on the challan record carry that challan's own interest
+  (field 9) and penalty or other (field 11) figures, not the batch figures. The
+  fee for a late filing goes in field 10 and is deliberately *not* repeated in
+  field 25.
 """
 
 from __future__ import annotations
@@ -51,6 +56,7 @@ BH_FIELDS = {
     "batch_number": 3,
     "num_challans": 4,
     "form_number": 5,
+    "token_previous": 9,
     "tan": 13,
     "pan_deductor": 15,
     "assessment_year": 16,
@@ -84,7 +90,11 @@ BH_FIELDS = {
     "rp_phone": 45,
     "batch_total": 47,
     "regular_earlier": 52,
+    "state_name": 54,
+    "ministry_code": 57,
+    "ministry_name": 58,
     "rp_pan": 59,
+    "ain": 68,
     "gstin": 69,
 }
 
@@ -94,13 +104,13 @@ CD_FIELDS = {
     "batch_number": 3,
     "challan_no": 4,
     "num_deductees": 5,
-    "challan_flag": 6,
-    "challan_mode": 13,
+    "nil_challan": 6,
     "tax": 8,
     "interest": 9,
     "fee": 10,
     "penalty": 11,
     "total": 12,
+    "challan_mode": 13,
     "bsr_code": 15,
     "challan_serial": 17,
     "challan_date": 19,
@@ -121,27 +131,54 @@ DD_FIELDS = {
     "pan": 8,
     "name": 9,
     "section": 15,
-    "pan_status": 18,
+    "deposited": 18,
     "payment_date": 19,
     "amount_paid": 20,
+    "cash_1cr": 22,
+    "cash_3cr": 23,
     "tds": 24,
     "total_tds": 25,
     "deduction_date": 27,
     "rate": 28,
+    "form121": 31,
+    "reason_code": 32,
+    "certificate_no": 33,
 }
 
+# The remarks below are the department's, shortened. Where a remark imposes a
+# rule, the rule is in lint.py as well; this is the explanation a reviewer reads.
 FIELD_NOTES = {
-    ("CD", 13): "Challan mode. 'C' for a bank challan.",
-    ("CD", 24): "Interest allocation. Must equal the interest on this challan (field 9).",
-    ("CD", 25): "Other allocation. Must equal the 'other' amount on this challan (field 11); 0.00 when there is none.",
+    ("FH", 4): "Upload type: 'R' for a regular statement, 'C' for a correction.",
+    ("FH", 5): "File creation date, DDMMYYYY.",
+    ("FH", 10): "Name of the software that produced the file.",
+    ("BH", 16): "Assessment year, e.g. 202728 for tax year 2026-27. Never less than 202728.",
+    ("BH", 17): "Tax year, e.g. 202627 for tax year 2026-27.",
+    ("BH", 18): "Quarter: Q1, Q2, Q3 or Q4.",
+    ("BH", 47): "Batch total of the deposit amounts; equals the sum of CD field 12. Paisa must be 00.",
+    ("BH", 52): "'Y' only if a regular statement for this form was already filed for an earlier period.",
+    ("BH", 54): "State code per Annexure 5. Required only for the State Government deductor types (S, E, H, N); for every other type it must be blank.",
+    ("BH", 57): "Ministry code per Annexure 3. Required for Central Government types (A, D, G).",
+    ("BH", 58): "Ministry name in words, required only when the ministry code is 99 (Other).",
+    ("BH", 68): "AIN of the PAO/TO/CDDO, required only for a government deductor paying by book adjustment.",
+    ("CD", 6): "'N' always, except on a nil statement where nothing was deposited, when it is 'Y'.",
+    ("CD", 8): "Income tax component of the deposit. The format allows no fractional portion here.",
+    ("CD", 12): "Total deposited. Equals fields 8+9+10+11, must have no fractional portion, and must be at least the tax, interest, other and fee allocated to this challan.",
+    ("CD", 13): "'C' when the tax went through a bank challan, 'B' for a transfer voucher. Required when any deductee on the challan uses section 1059, 1034, 1038 or 1061, and blank on a nil statement.",
+    ("CD", 24): "Interest allocation: the interest on this challan (field 9). Integer values only.",
+    ("CD", 25): "Other allocation: the penalty/other amount on this challan (field 11), not the fee. Integer values only, so it is written with .00.",
     ("DD", 4): "Deductee serial number. Runs across the whole statement 1..n and must strictly increase.",
-    ("DD", 5): "Challan number this deductee settles; must be the enclosing challan record.",
-    ("DD", 6): "'O' for an original entry.",
-    ("DD", 18): "'Y' when the PAN is available and valid; otherwise the applicable reason code from Annexure 6.",
-    ("DD", 28): "Rate of deduction, four decimals ('10.0000', '0.1000').",
-    ("BH", 52): "'N' when no earlier statement has been filed for this TAN and period.",
-    ("BH", 47): "Batch total: the sum of every challan total in this batch.",
+    ("DD", 5): "Challan reference: the challan's serial number within the batch.",
+    ("DD", 6): "'O', the only value the format allows.",
+    ("DD", 8): "Deductee PAN. A text placeholder is allowed in place of a real PAN - PANAPPLIED, PANINVALID or PANNOTAVBL - except on section 1059, 1034, 1038 or 1061 rows.",
+    ("DD", 18): "'Y' or 'N': has the tax deducted on this row been deposited?",
+    ("DD", 19): "Date paid or credited. Must fall inside the quarter and financial year of the statement.",
+    ("DD", 27): "Date of deduction. Required when the tax deducted is more than zero, and never earlier than the first day of the quarter.",
+    ("DD", 28): "Rate of deduction, four decimals ('10.0000'). Zero when nothing was deducted.",
+    ("DD", 31): "Form 121 unique identification number, 26 characters.",
+    ("DD", 32): "Reason flag from Annexure 6; blank when none applies.",
+    ("DD", 33): "Certificate number under section 395, 10 or 15 alphanumeric characters. Required when field 32 is 'A'.",
 }
+
 
 
 class Context:
@@ -235,7 +272,12 @@ def build_bh(ctx: Context) -> dict:
         BH_FIELDS["rp_phone"]: str(rp.get("phone", "") or ""),
         BH_FIELDS["batch_total"]: money_str(batch_total),
         BH_FIELDS["regular_earlier"]: str(ded.get("regular_earlier", "N") or "N").upper()[:1],
+        BH_FIELDS["token_previous"]: str(ded.get("token_previous", "") or ""),
+        BH_FIELDS["state_name"]: str(ded.get("state_name", "") or ""),
+        BH_FIELDS["ministry_code"]: str(ded.get("ministry_code", "") or ""),
+        BH_FIELDS["ministry_name"]: str(ded.get("ministry_name", "") or ""),
         BH_FIELDS["rp_pan"]: str(rp.get("pan", "") or ""),
+        BH_FIELDS["ain"]: str(ded.get("ain", "") or ""),
         BH_FIELDS["gstin"]: str(ded.get("gstin", "") or ""),
     }
 
@@ -243,18 +285,20 @@ def build_bh(ctx: Context) -> dict:
 def build_cd(ctx: Context, ch, rows, index: int) -> dict:
     total_tds = sum((r.total_tds for r in rows), Decimal("0.00"))
     tds = sum((r.tds for r in rows), Decimal("0.00"))
+    nil = "Y" if str(getattr(ch, "nil_challan", "N") or "N").upper()[:1] == "Y" else "N"
+    mode = "" if nil == "Y" else (ch.nature or "C")
     return {
         CD_FIELDS["record_type"]: "CD",
         CD_FIELDS["batch_number"]: ctx.batch_number,
         CD_FIELDS["challan_no"]: str(index),
         CD_FIELDS["num_deductees"]: str(len(rows)),
-        CD_FIELDS["challan_flag"]: "N",
-        CD_FIELDS["challan_mode"]: ch.nature or "C",
+        CD_FIELDS["nil_challan"]: nil,
         CD_FIELDS["tax"]: money_str(ch.all_tax),
         CD_FIELDS["interest"]: money_str(ch.interest),
         CD_FIELDS["fee"]: money_str(ch.fee),
         CD_FIELDS["penalty"]: money_str(ch.penalty),
         CD_FIELDS["total"]: money_str(ch.total),
+        CD_FIELDS["challan_mode"]: mode,
         CD_FIELDS["bsr_code"]: ch.bsr_code,
         CD_FIELDS["challan_serial"]: ch.challan_serial,
         CD_FIELDS["challan_date"]: date8(ch.challan_date) if ch.challan_date else "",
@@ -262,7 +306,10 @@ def build_cd(ctx: Context, ch, rows, index: int) -> dict:
         CD_FIELDS["deductee_tax"]: money_str(tds),
         CD_FIELDS["minor_head"]: ch.minor_head,
         CD_FIELDS["interest_allocation"]: money_str(ch.interest),
-        CD_FIELDS["other_allocation"]: money_str(ch.penalty + ch.fee),
+        # Field 11 only. The official remark says to repeat field 11 here, and
+        # the fee (field 10) is checked separately in the deposit test, so
+        # adding it in as well would count it twice.
+        CD_FIELDS["other_allocation"]: money_str(ch.penalty),
     }
 
 
@@ -276,13 +323,18 @@ def build_dd(ctx: Context, row, serial: int, challan_index: int) -> dict:
         DD_FIELDS["pan"]: row.pan,
         DD_FIELDS["name"]: row.name,
         DD_FIELDS["section"]: row.section,
-        DD_FIELDS["pan_status"]: row.pan_status,
+        DD_FIELDS["deposited"]: row.deposited,
         DD_FIELDS["payment_date"]: date8(row.payment_date) if row.payment_date else "",
         DD_FIELDS["amount_paid"]: money_str(row.amount_paid),
+        DD_FIELDS["cash_1cr"]: money_str(row.cash_withdrawal_1cr) if row.cash_withdrawal_1cr else "",
+        DD_FIELDS["cash_3cr"]: money_str(row.cash_withdrawal_3cr) if row.cash_withdrawal_3cr else "",
         DD_FIELDS["tds"]: money_str(row.tds),
         DD_FIELDS["total_tds"]: money_str(row.total_tds),
         DD_FIELDS["deduction_date"]: date8(row.deduction_date) if row.deduction_date else "",
         DD_FIELDS["rate"]: _rate(row.rate),
+        DD_FIELDS["form121"]: row.form121,
+        DD_FIELDS["reason_code"]: row.reason_code,
+        DD_FIELDS["certificate_no"]: row.certificate_no,
     }
 
 

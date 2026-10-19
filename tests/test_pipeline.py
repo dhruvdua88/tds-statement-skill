@@ -131,9 +131,35 @@ class TestBuild140(unittest.TestCase):
     def test_short_name_is_legal(self):
         self.assertLessEqual(len(build_txt.short_name(self.st)), 12)
 
-    def test_build_refuses_unbalanced_challan(self):
+    def test_build_refuses_over_allocated_challan(self):
+        """Allocating more tax to a challan than was deposited is rejected by the utility."""
         st = Statement.load(FIX / "example_140.json")
-        st.deductees = st.deductees[:-1]
+        clone = Deductee.from_dict(st.deductees[0].to_dict())
+        st.deductees.append(clone)
+        with self.assertRaises(build_txt.BuildError):
+            build_txt.write(st, tempfile.mkdtemp())
+
+    def test_build_allows_an_under_allocated_challan(self):
+        """A challan paid at a round figure may carry unallocated tax; that is legal.
+
+        The utility only requires the deposit to be at least the tax it is asked
+        to cover, so a builder that refused this would force a made-up figure on
+        to a good filing.
+        """
+        st = Statement.load(FIX / "example_140.json")
+        st.challans[0].tax += Decimal("500.00")
+        st.challans[0].total += Decimal("500.00")
+        manifest = build_txt.write(st, tempfile.mkdtemp())
+        self.assertEqual(manifest["status"], "READY")
+        notes = [i for i in lint.model_issues(st)
+                 if i.level == lint.INFO and i.code == "ALLOCATION_EXCESS"]
+        self.assertEqual(len(notes), 1)
+
+    def test_build_refuses_fractional_challan_amount(self):
+        """Fields 8 to 12 of the challan record are integer; paise are rejected."""
+        st = Statement.load(FIX / "example_140.json")
+        st.challans[0].tax += Decimal("0.50")
+        st.challans[0].total += Decimal("0.50")
         with self.assertRaises(build_txt.BuildError):
             build_txt.write(st, tempfile.mkdtemp())
 

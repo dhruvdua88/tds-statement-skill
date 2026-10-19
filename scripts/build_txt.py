@@ -12,10 +12,18 @@ Two rules the writer enforces because the utility is unforgiving about them:
 * the file ends in CRLF, is pure ASCII, and has no BOM. A BOM or a bare LF is
   the most common silent rejection and it is invisible in a text editor.
 
-It also enforces the arithmetic contract before writing anything: the DD rows
-under a challan must add up to that challan's tax, because the utility's
-challan matching will reject the file otherwise and the error message it gives
-does not tell you which challan drifted.
+Two arithmetic rules it also enforces, because the utility's own errors are
+vague about both:
+
+* no challan amount may carry paise. Fields 8 to 12 of the challan record are
+  declared integer, and "1000.50" is rejected outright. Paise are allowed on a
+  deductee row and in the challan's own sums of those rows, but the money the
+  deductor actually deposited has to be whole rupees. Rounding it here would
+  change the amount the challan is matched against, so the build stops instead
+  and says which challan is affected.
+* the deductee rows charged to a challan may come to less than the tax on it
+  (the deposit was rounded up, and the utility allows the excess) but never
+  more, which the utility rejects.
 """
 
 from __future__ import annotations
@@ -31,6 +39,10 @@ from model import Statement, date8, money_str
 
 class BuildError(RuntimeError):
     pass
+
+
+def _is_whole_rupees(value: Decimal) -> bool:
+    return value == value.to_integral_value()
 
 
 def load_layout(form: str):
@@ -69,14 +81,31 @@ def build_records(st: Statement, layout) -> list[str]:
 
     add(layout.build_fh(ctx), layout.WIDTHS["FH"], "FH")
 
-    # Refuse to build a statement whose DD rows do not settle its challans.
+    # Refuse to write a challan the utility cannot accept: fractional money, or
+    # more tax allocated to it than was deposited.
+    for ch in st.challans:
+        amounts = {
+            "tax": ch.all_tax, "interest": ch.interest, "fee": ch.fee,
+            "penalty": ch.penalty, "total": ch.total,
+        }
+        bad = {k: v for k, v in amounts.items() if not _is_whole_rupees(v)}
+        if bad:
+            detail = ", ".join(f"{k} {v}" for k, v in bad.items())
+            raise BuildError(
+                f"challan {ch.challan_serial} ({ch.challan_date}): the format allows no "
+                f"fractional portion on a challan record, but {detail}. The amount actually "
+                "deposited cannot be rounded here - correct the challan figures, or the "
+                "deductee rows that feed them."
+            )
+
     alloc = st.allocation()
     for row in alloc:
-        if row["allocated"] != row["challan_tax"]:
+        if row["over_by"] > 0:
             raise BuildError(
                 f"challan {row['serial']} ({row['date']}): deductee rows total "
                 f"{row['allocated']} against challan tax {row['challan_tax']} "
-                f"(difference {row['remaining']}). Fix the allocation before building."
+                f"(over-allocated by {row['over_by']}). Move the excess to the challan it "
+                "was deposited under, or enter the missing challan."
             )
 
     add(layout.build_bh(ctx), layout.WIDTHS["BH"], "BH")

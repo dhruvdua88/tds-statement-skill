@@ -1,15 +1,17 @@
 """Reference tables from the official file-format workbook (Annexures 1-7).
 
-These are not opinions; they are transcribed from the department's own
-spreadsheet, because a single wrong state code or section code produces a
-statement that looks fine and is rejected at upload. The tables live in
-``assets/annexures.json`` so they can be regenerated when Protean publishes a
-new format version, and ``scripts/extract_annexures.py`` builds that file from
-the official workbook.
+These are not opinions. Every code below comes from the department's own
+spreadsheet in ``assets/annexures.json``, which ``scripts/extract_annexures.py``
+builds from the official workbook. Hand-typing a state or section code from
+memory is how a statement ends up looking right and being rejected at upload:
+the state codes in the first draft of this file were all shifted (Delhi was 08
+instead of 09, Haryana 11 instead of 12) and the deductor categories were a
+different scheme altogether.
 
-If the JSON is missing, the fallback below keeps the common cases working and
-marks the tables as incomplete so the linter can say so rather than silently
-passing a wrong code.
+If the JSON is missing, the loader falls back to the handful of values that are
+independently verifiable and sets ``TABLES_COMPLETE`` false. The linter then
+reports an unknown code as a warning rather than an error, because without the
+tables a code it does not recognise may still be correct.
 """
 
 from __future__ import annotations
@@ -19,75 +21,129 @@ from pathlib import Path
 
 ASSET = Path(__file__).resolve().parent.parent / "assets" / "annexures.json"
 
-# Fallback only. Populated with the codes that appear in almost every statement.
+# Sections that may only appear on a salary statement (Form 138). Salary code
+# 1002 is deliberately absent from Annexure 2 of Form 140, so a non-salary
+# statement carrying it is wrong.
+SALARY_SECTIONS = {"1002"}
+
+# Sections the official remarks single out: the tax was paid before release, so
+# the deductee PAN may not be a placeholder, the tax columns must be zero and
+# the rate must be zero.
+NO_PAN_DEFAULT_SECTIONS = {"1059", "1034", "1038", "1061"}
+
+# Cash-withdrawal sections. See FIELD_NOTES in layout140: the workbook's remarks
+# for DD fields 22 and 23 name sections 1065 and 1064, which is the reverse of
+# the field names. Rare enough that it is flagged rather than resolved.
+CASH_WITHDRAWAL_SECTIONS = {"1064", "1065"}
+
+# Indicative rates, used only to raise "this looks off" warnings on the
+# workpaper. The rate is set by the Act and the Finance Act for the year, not by
+# the file format, so treat these as a prompt to look, never as authority.
+INDICATIVE_RATES = {
+    "1004": 10.0, "1006": 2.0, "1008": 10.0, "1009": 10.0,
+    "1019": 10.0, "1021": 10.0, "1023": 1.0, "1024": 2.0,
+    "1026": 2.0, "1027": 10.0, "1028": 10.0, "1029": 10.0,
+    "1031": 0.1, "1033": 2.0, "1035": 2.0, "1058": 2.0,
+    "1059": 30.0, "1060": 5.0, "1061": 30.0, "1062": 2.0,
+    "1063": 2.0, "1064": 2.0, "1065": 5.0,
+}
+
+# Fallback only, and only for values that cannot be misread: the three minor
+# heads, the official deductor categories, and the reason flags. State and
+# section codes are intentionally absent - a plausible wrong code is worse than
+# a loud "table missing".
 _FALLBACK = {
-    "state_codes": {
-        "01": "Andhra Pradesh", "02": "Assam", "03": "Bihar", "04": "Chandigarh",
-        "05": "Chhattisgarh", "06": "Dadra & Nagar Haveli", "07": "Daman & Diu",
-        "08": "Delhi", "09": "Goa", "10": "Gujarat", "11": "Haryana",
-        "12": "Himachal Pradesh", "13": "Jammu & Kashmir", "14": "Jharkhand",
-        "15": "Karnataka", "16": "Kerala", "17": "Lakshadweep", "18": "Madhya Pradesh",
-        "19": "Maharashtra", "20": "Manipur", "21": "Meghalaya", "22": "Mizoram",
-        "23": "Nagaland", "24": "Odisha", "25": "Puducherry", "26": "Punjab",
-        "27": "Rajasthan", "28": "Sikkim", "29": "Tamil Nadu", "30": "Tripura",
-        "31": "Uttar Pradesh", "32": "West Bengal", "33": "Andaman & Nicobar Islands",
-        "34": "Arunachal Pradesh", "35": "Uttarakhand", "36": "Telangana",
+    "state_codes": {},
+    "sections": {},
+    "minor_heads": {
+        "100": "Advance Tax",
+        "200": "TDS payable by taxpayer",
+        "400": "TDS regular assessment (Raised by I. T, Dept.)",
     },
-    "sections": {
-        "1002": {"description": "Salary", "rate_pct": None, "form": "138"},
-        "1006": {"description": "Commission or brokerage", "rate_pct": 2, "form": "140"},
-        "1009": {"description": "Rent", "rate_pct": 10, "form": "140"},
-        "1023": {"description": "Contractor - individual/HUF", "rate_pct": 1, "form": "140"},
-        "1024": {"description": "Contractor - other than individual/HUF", "rate_pct": 2, "form": "140"},
-        "1026": {"description": "Technical services / royalty", "rate_pct": 2, "form": "140"},
-        "1027": {"description": "Professional services", "rate_pct": 10, "form": "140"},
-        "1031": {"description": "Purchase of goods", "rate_pct": 0.1, "form": "140"},
-    },
-    "minor_heads": {"200": "TDS/TCS payable", "400": "TDS/TCS regular assessment"},
     "deductor_categories": {
-        "A": "Association of persons", "B": "Body of individuals",
-        "C": "Company (other than government)", "F": "Firm / LLP", "G": "Government",
-        "H": "Hindu undivided family", "J": "Artificial juridical person",
-        "K": "Company", "L": "Local authority", "P": "Individual", "T": "Trust",
+        "A": "Central Government",
+        "B": "Body of Individuals",
+        "D": "Statutory body (Central Govt.)",
+        "E": "Statutory body (State Govt.)",
+        "F": "Firm",
+        "G": "Autonomous body (Central Govt.)",
+        "H": "Autonomous body (State Govt.)",
+        "J": "Artificial Juridical Person",
+        "K": "Company",
+        "L": "Local Authority (Central Govt.)",
+        "M": "Branch / Division of Company",
+        "N": "Local Authority (State Govt.)",
+        "P": "Association of Person (AOP)",
+        "Q": "Individual/HUF",
+        "S": "State Government",
+        "T": "Association of Person (Trust)",
     },
-    "reason_codes": {"Y": "Valid PAN", "C": "PAN not available", "N": "PAN not applied for"},
+    "reason_codes": {},
 }
 
 
-def _load() -> tuple[dict, bool]:
+def _load() -> tuple[dict, list[str]]:
+    data: dict = {}
     if ASSET.exists():
         try:
             data = json.loads(ASSET.read_text(encoding="utf-8"))
-            merged = dict(_FALLBACK)
-            merged.update({k: v for k, v in data.items() if v})
-            return merged, True
-        except json.JSONDecodeError:
-            pass
-    return _FALLBACK, False
+        except json.JSONDecodeError as exc:
+            return dict(_FALLBACK), [f"{ASSET.name} is not valid JSON: {exc}"]
+
+    merged = {k: dict(v) for k, v in _FALLBACK.items()}
+    for key in ("state_codes", "sections", "minor_heads", "deductor_categories", "reason_codes"):
+        if data.get(key):
+            merged[key] = data[key]
+    merged["annexures"] = data.get("annexures", {})
+    merged["source"] = data.get("source", {})
+
+    missing = [k for k in ("state_codes", "sections", "reason_codes") if not merged.get(k)]
+    return merged, missing
 
 
-DATA, COMPLETE = _load()
+DATA, MISSING_TABLES = _load()
 
 STATE_CODES: dict[str, str] = DATA["state_codes"]
 SECTIONS: dict[str, dict] = DATA["sections"]
 MINOR_HEADS: dict[str, str] = DATA["minor_heads"]
 DEDUCTOR_CATEGORIES: dict[str, str] = DATA["deductor_categories"]
 REASON_CODES: dict[str, str] = DATA["reason_codes"]
-ANNEXURES = DATA.get("annexures", {})
+ANNEXURES: dict = DATA.get("annexures", {})
+MINISTRY_CODES: dict[str, str] = ANNEXURES.get("ministry_codes", {})
+REASON_CODE_DETAIL: dict = ANNEXURES.get("reason_code_detail", {})
+SOURCE: dict = DATA.get("source", {})
 
-TABLES_COMPLETE = COMPLETE
+TABLES_COMPLETE = not MISSING_TABLES
 
 
 def section_label(code: str) -> str:
-    return SECTIONS.get(code, {}).get("description", f"unknown section {code}")
+    meta = SECTIONS.get(code)
+    return meta["description"] if meta else f"unknown section code {code}"
+
+
+def section_reference(code: str) -> str:
+    meta = SECTIONS.get(code)
+    return meta.get("section", "") if meta else ""
 
 
 def state_name(code: str) -> str:
     return STATE_CODES.get(code, "")
 
 
+def state_code(name: str) -> str:
+    wanted = (name or "").strip().upper()
+    for code, label in STATE_CODES.items():
+        if label.upper() == wanted:
+            return code
+    return ""
+
+
 def sections_for_form(form: str) -> dict[str, dict]:
-    """Salary statements only use 1002; the non-salary form uses the rest."""
+    """Form 138 is salary only; Form 140 uses the rest of Annexure 2."""
     if form == "138":
-        return {k: v for k, v in SECTIONS.items() if v.get("form") in (None, "138")}
-    return {k: v for k, v in SECTIONS.items() if v.get("form") != "138"}
+        return {k: v for k, v in SECTIONS.items() if k in SALARY_SECTIONS}
+    return {k: v for k, v in SECTIONS.items() if k not in SALARY_SECTIONS}
+
+
+def indicative_rate(code: str) -> float | None:
+    return INDICATIVE_RATES.get(code)

@@ -27,7 +27,7 @@
       "line3": "PHASE II",
       "line4": "SONEPAT",
       "line5": "HARYANA",
-      "state_code": "11",
+      "state_code": "12",
       "pin": "131001",
       "country": "INDIA"
     }
@@ -45,7 +45,7 @@
       "line3": "PHASE II",
       "line4": "SONEPAT",
       "line5": "HARYANA",
-      "state_code": "11",
+      "state_code": "12",
       "pin": "131001",
       "country": "INDIA"
     }
@@ -90,7 +90,7 @@
       "rate": "1.0000",
       "payment_date": "31-07-2026",
       "deduction_date": "31-07-2026",
-      "pan_status": "Y",
+      "deposited": "Y",
       "source_ref": "fixture row 1"
     },
     {
@@ -103,7 +103,7 @@
       "rate": "0.1000",
       "payment_date": "31-07-2026",
       "deduction_date": "31-07-2026",
-      "pan_status": "Y",
+      "deposited": "Y",
       "source_ref": "fixture row 2"
     },
     {
@@ -116,7 +116,7 @@
       "rate": "10.0000",
       "payment_date": "31-08-2026",
       "deduction_date": "31-08-2026",
-      "pan_status": "Y",
+      "deposited": "Y",
       "source_ref": "fixture row 3"
     },
     {
@@ -129,7 +129,7 @@
       "rate": "1.0000",
       "payment_date": "31-08-2026",
       "deduction_date": "31-08-2026",
-      "pan_status": "Y",
+      "deposited": "Y",
       "source_ref": "fixture row 4"
     },
     {
@@ -142,7 +142,7 @@
       "rate": "10.0000",
       "payment_date": "30-09-2026",
       "deduction_date": "30-09-2026",
-      "pan_status": "Y",
+      "deposited": "Y",
       "source_ref": "fixture row 5"
     },
     {
@@ -155,7 +155,7 @@
       "rate": "1.0000",
       "payment_date": "30-09-2026",
       "deduction_date": "30-09-2026",
-      "pan_status": "Y",
+      "deposited": "Y",
       "source_ref": "fixture row 6"
     }
   ],
