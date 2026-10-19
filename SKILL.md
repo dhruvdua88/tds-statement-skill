@@ -115,6 +115,13 @@ python3 scripts/tds.py package statement.json -o deliverables/ \
         --working-paper working.xlsx --issues issues.json
 ```
 
+The workbook's *Interest & Late Fee* sheet works out interest for late
+deduction and late deposit (s.398(3)(a), the old s.201(1A)) and the late filing
+fee (s.427, the old s.234E, at 200 rupees a day capped at the tax). Pass
+`--filed-on DD-MM-YYYY` for the fee. Any shortfall is flagged, here and as a
+lint warning. It is never added to a challan, because only a challan someone
+actually deposits can pay it.
+
 The folder always carries five things: the statement TXT, the working paper, the
 query list, the Form 27A figures, and a checklist whose first line says READY TO
 UPLOAD or NOT READY. The `.fvu` is there only when the utility produced it.

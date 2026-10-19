@@ -462,6 +462,17 @@ def model_issues(st: Statement) -> list[Issue]:
         if row["rows"] == 0:
             add(WARN, "CHALLAN_UNUSED", "no deductee rows against this challan", ref)
 
+    # ---- interest -------------------------------------------------------
+    # Flagged, never added: interest is paid by a challan someone decides to
+    # deposit. The late fee depends on the filing date, so it is in the workbook.
+    import interest
+    w = interest.compute(st)
+    if w["interest_short"] > 0:
+        add(WARN, "INTEREST_SHORT",
+            f"the dates imply {w['interest']} interest under {codes.CITE_LATE_DEDUCTION} / "
+            f"{codes.CITE_LATE_DEPOSIT} but the challans carry {w['interest_paid']}; see the "
+            "workbook's Interest & Late Fee sheet (nothing is added to a challan)")
+
     # ---- pending ---------------------------------------------------------
     for p in st.blocking_pending:
         add(ERROR, "PENDING", f"awaiting {p.get('field')}: {p.get('why')}", str(p.get("owner", "")))

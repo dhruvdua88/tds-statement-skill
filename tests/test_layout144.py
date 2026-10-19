@@ -348,7 +348,10 @@ class TestFixture(unittest.TestCase):
     def test_lint_is_clean_against_form_144s_own_section_table(self):
         """Form 144's Annexure 2 is checked from assets/annexures_144.json."""
         issues = lint.model_issues(self.st) + lint.txt_issues(self.txt, self.st, layout144)
-        bad = [str(i) for i in issues if i.level in (lint.ERROR, lint.WARN)]
+        # The fixture's second challan is paid late on purpose; the interest
+        # working flags that, which is not a layout matter.
+        bad = [str(i) for i in issues if i.level in (lint.ERROR, lint.WARN)
+               and i.code != "INTEREST_SHORT"]
         self.assertEqual(bad, [], "\n".join(bad))
 
     def test_a_form_140_only_code_is_refused_on_form_144(self):

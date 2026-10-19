@@ -17,6 +17,7 @@ tables a code it does not recognise may still be correct.
 from __future__ import annotations
 
 import json
+from decimal import Decimal
 from pathlib import Path
 
 ASSET = Path(__file__).resolve().parent.parent / "assets" / "annexures.json"
@@ -157,3 +158,58 @@ def sections_for_form(form: str) -> dict[str, dict]:
 
 def indicative_rate(code: str) -> float | None:
     return INDICATIVE_RATES.get(code)
+
+
+# ---------------------------------------------------------------------------
+# Time limits, fees and interest. The one place these live.
+#
+# Statement due dates: the four official form FAQs (Forms 138, 140, 143, 144),
+# question "What is the time limit for filing": 31 July, 31 October, 31 January,
+# and 31 May of the financial year following the tax year for Q4. Keyed by
+# quarter: (month, day, years after the tax year's starting year).
+# ---------------------------------------------------------------------------
+STATEMENT_DUE = {
+    "Q1": (7, 31, 0),
+    "Q2": (10, 31, 0),
+    "Q3": (1, 31, 1),
+    "Q4": (5, 31, 1),
+}
+
+# Deposit of tax deducted, under section 397(3)(a), "in such time as may be
+# prescribed". Only March is confirmed from an official 2025-Act source (the
+# TDS Compliance FAQ: tax deducted in March 2026 is due by 30 April 2026). The
+# seventh of the following month for every other month is the 1961-Act rule
+# carried over and is NOT verified against the 2026 Rules.
+DEPOSIT_DUE_MARCH = (4, 30)
+DEPOSIT_DUE_DAY_OTHER_MONTHS = 7
+DEPOSIT_DUE_NOTE = ("7th of the following month [verify: Income-tax Rules, 2026]; "
+                    "30 April for March (official TDS Compliance FAQ)")
+
+# Income-tax Act, 2025, read from the Act text; the 1961 equivalents in brackets.
+INTEREST_LATE_DEDUCTION = Decimal("1")     # % per month or part, s.398(3)(a)(i)
+INTEREST_LATE_DEPOSIT = Decimal("1.5")     # % per month or part, s.398(3)(a)(ii)
+LATE_FEE_PER_DAY = Decimal("200")          # s.427(1), capped by s.427(2)(a)
+CITE_LATE_DEDUCTION = "s.398(3)(a)(i) [s.201(1A)(i) of the 1961 Act]"
+CITE_LATE_DEPOSIT = "s.398(3)(a)(ii) [s.201(1A)(ii) of the 1961 Act]"
+CITE_LATE_FEE = "s.427 [s.234E of the 1961 Act]"
+
+# Section 397(2)(b)(i) [s.206AA of the 1961 Act]: without a valid PAN, tax is
+# deducted at the highest of the Act rate, the rate in force, or 5% for section
+# 393(1) [Table: Sl. No. 8(ii) or 8(v)] (codes 1031 and 1035) and 20% otherwise.
+# Section 397(2)(c) exempts a non-resident (not a company) on the long-term
+# bond interest of section 393(2) [Table: Sl. Nos. 2, 3 and 4] (codes 1040 to
+# 1043 on Form 144).
+NO_PAN_RATE = Decimal("20")
+NO_PAN_RATE_LOW = Decimal("5")
+NO_PAN_LOW_SECTIONS = {"1031", "1035"}
+NO_PAN_EXEMPT_SECTIONS_144 = {"1040", "1041", "1042", "1043"}
+CITE_NO_PAN = "s.397(2)(b)(i) [s.206AA of the 1961 Act]"
+
+
+def no_pan_rate(form: str, section: str) -> Decimal | None:
+    """The floor section 397(2) sets when no valid PAN is furnished, or None if exempt."""
+    if form == "144" and section in NO_PAN_EXEMPT_SECTIONS_144:
+        return None
+    floor = NO_PAN_RATE_LOW if section in NO_PAN_LOW_SECTIONS else NO_PAN_RATE
+    rate = indicative_rate(section)
+    return max(floor, Decimal(str(rate))) if rate is not None else floor

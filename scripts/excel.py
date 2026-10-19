@@ -20,6 +20,7 @@ from decimal import Decimal
 from pathlib import Path
 
 import codes
+import interest
 import queries
 from model import Statement
 
@@ -45,8 +46,65 @@ def _widths(ws, widths: list[int]) -> None:
         ws.column_dimensions[get_column_letter(i)].width = w
 
 
+def interest_sheet(wb, st: Statement, filed_on: str = "") -> None:
+    """Interest and late fee, computed and set against what the challans carry. Never added."""
+    from openpyxl.styles import Font, PatternFill
+
+    w = interest.compute(st, filed_on)
+    ws = wb.create_sheet("Interest & Late Fee")
+    ws["A1"] = "Interest and late fee - a working, not a charge"
+    ws["A1"].font = Font(bold=True, size=13)
+    ws["A2"] = ("Computed from the dates in the statement and compared with the challans. Nothing here "
+                "is added to a challan: any shortfall is paid by a challan someone decides to deposit.")
+    summary = [
+        ("Late deduction", f"{codes.INTEREST_LATE_DEDUCTION}% a month or part, {codes.CITE_LATE_DEDUCTION}"),
+        ("Late deposit", f"{codes.INTEREST_LATE_DEPOSIT}% a month or part, {codes.CITE_LATE_DEPOSIT}"),
+        ("Deposit due date used", codes.DEPOSIT_DUE_NOTE),
+        ("Month count", "every calendar month the period touches, first and last included"),
+        ("Interest computed", w["interest"]),
+        ("Interest on the challans", w["interest_paid"]),
+        ("Interest short", w["interest_short"]),
+        ("", ""),
+        ("Late filing fee", f"Rs {codes.LATE_FEE_PER_DAY} a day, capped at the tax deductible, {codes.CITE_LATE_FEE}"),
+        ("Statement due", w["statement_due"]),
+        ("Filed / to be filed on", w["filed_on"] + ("  (today - pass --filed-on)" if w["filed_on_assumed"] else "")),
+        ("Days late", w["days_late"]),
+        ("Fee before the cap", w["fee_uncapped"]),
+        ("Cap (tax deductible)", w["fee_cap"]),
+        ("Fee", w["fee"]),
+        ("Fee on the challans", w["fee_paid"]),
+        ("Fee short", w["fee_short"]),
+    ]
+    for i, (k, v) in enumerate(summary, start=4):
+        ws.cell(row=i, column=1, value=k).font = Font(bold=True)
+        cell = ws.cell(row=i, column=2, value=float(v) if isinstance(v, Decimal) else v)
+        if isinstance(v, Decimal):
+            cell.number_format = MONEY
+            if k.endswith("short") and v > 0:
+                cell.fill = PatternFill("solid", fgColor=BAD_FILL)
+    top = 4 + len(summary) + 1
+    head = ["Row", "Deductee", "PAN", "Section", "Tax", "Paid/credited", "Deducted",
+            "Challan", "Challan date", "Deposit due", "Late-deduction months",
+            "Late-deduction interest", "Late-deposit months", "Late-deposit interest"]
+    for c, h in enumerate(head, start=1):
+        ws.cell(row=top, column=c, value=h)
+    _style_header(ws, top)
+    for r in w["rows"]:
+        ws.append([r["row"], r["name"], r["pan"], r["section"], float(r["tds"]), r["payment_date"],
+                   r["deduction_date"], r["challan"], r["challan_date"], r["deposit_due"],
+                   r["late_deduction_months"], float(r["late_deduction_interest"]),
+                   r["late_deposit_months"], float(r["late_deposit_interest"])])
+        last = ws[ws.max_row]
+        for c in (last[4], last[11], last[13]):
+            c.number_format = MONEY
+        if r["late_deduction_interest"] or r["late_deposit_interest"]:
+            for c in last:
+                c.fill = PatternFill("solid", fgColor=WARN_FILL)
+    _widths(ws, [24, 60, 14, 8, 14, 13, 13, 10, 13, 13, 10, 14, 10, 14])
+
+
 def build(st: Statement, out_path: str | Path, fvu_result: dict | None = None,
-          issues: list[dict] | None = None) -> None:
+          issues: list[dict] | None = None, filed_on: str = "") -> None:
     from openpyxl import Workbook
     from openpyxl.styles import Alignment, Font, PatternFill
 
@@ -218,6 +276,8 @@ def build(st: Statement, out_path: str | Path, fvu_result: dict | None = None,
             for c in ws[ws.max_row]:
                 c.fill = PatternFill("solid", fgColor=fill)
     _widths(ws, [8, 22, 96, 30])
+
+    interest_sheet(wb, st, filed_on)
 
     # ------------------------------------------------------------ queries
     ws = wb.create_sheet("Queries & Blockers")

@@ -148,7 +148,7 @@ def cmd_excel(args) -> int:
     issues = None
     if args.issues:
         issues = json.loads(Path(args.issues).read_text())
-    excel.build(st, args.out, fvu_result=fvu_result, issues=issues)
+    excel.build(st, args.out, fvu_result=fvu_result, issues=issues, filed_on=args.filed_on)
     print(f"wrote {args.out}")
     return 0
 
@@ -283,6 +283,7 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("-o", "--out", required=True)
     s.add_argument("--fvu-result", default="")
     s.add_argument("--issues", default="")
+    s.add_argument("--filed-on", default="", help="filing date DD-MM-YYYY for the late fee (default today)")
     s.set_defaults(func=cmd_excel)
 
     s = sub.add_parser("queries", help="the query list and the blockers stopping the .fvu")
