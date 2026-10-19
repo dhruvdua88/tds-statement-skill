@@ -359,13 +359,45 @@ def main(argv: list[str] | None = None) -> int:
     s.set_defaults(func=cmd_schema)
 
     args = p.parse_args(argv)
-    import build_txt
-    from model import ModelError
     try:
         return args.func(args)
-    except (build_txt.BuildError, ModelError) as exc:
-        print(f"tds {args.cmd}: {exc}", file=sys.stderr)
+    except Exception as exc:  # noqa: BLE001 - the one place a user-facing error is worded
+        if os.environ.get("TDS_DEBUG") == "1":
+            raise
+        print(f"tds {args.cmd}: {plain_error(exc)}", file=sys.stderr)
         return 2
+    except KeyboardInterrupt:
+        print(f"tds {args.cmd}: stopped", file=sys.stderr)
+        return 130
+
+
+def plain_error(exc: BaseException) -> str:
+    """One line a person can act on. TDS_DEBUG=1 shows the traceback instead."""
+    import build_txt
+    from model import ModelError
+
+    # Our own errors are already worded for the person reading them.
+    if isinstance(exc, (build_txt.BuildError, ModelError)) or \
+            type(exc).__module__ in ("fvu", "correct", "recon", "intake", "fetch_official"):
+        return str(exc)
+    if isinstance(exc, FileNotFoundError):
+        return f"file not found: {exc.filename or exc}"
+    if isinstance(exc, IsADirectoryError):
+        return f"expected a file but got a folder: {exc.filename or exc}"
+    if isinstance(exc, PermissionError):
+        return f"permission denied: {exc.filename or exc}"
+    if isinstance(exc, json.JSONDecodeError):
+        return f"the file is not valid JSON (line {exc.lineno}, column {exc.colno}): {exc.msg}"
+    if isinstance(exc, UnicodeDecodeError):
+        return "the file is not readable text; check that it is the file you meant"
+    if isinstance(exc, ModuleNotFoundError) and exc.name == "openpyxl":
+        return "openpyxl is not installed; run: python3 -m pip install --user openpyxl"
+    if isinstance(exc, KeyError):
+        return f"a required value is missing from the document: {exc}"
+    if isinstance(exc, ValueError):
+        return str(exc)
+    return (f"unexpected problem ({type(exc).__name__}: {exc}); run again with TDS_DEBUG=1 "
+            "to see the details")
 
 
 if __name__ == "__main__":

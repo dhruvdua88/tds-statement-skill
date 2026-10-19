@@ -350,6 +350,36 @@ class TestCli(unittest.TestCase):
             self.assertNotIn("Traceback", out.stderr, argv)
             self.assertEqual(len(out.stderr.strip().splitlines()), 1, out.stderr)
 
+    def test_readme_test_count_is_true(self):
+        sys.path.insert(0, str(ROOT / "tests"))
+        import readme_count
+        self.assertEqual(readme_count.claimed(), readme_count.count(),
+                         "README.md test count has drifted; run make readme-count")
+
+    def test_cli_errors_are_one_plain_line(self):
+        tmp = Path(tempfile.mkdtemp(prefix="tds-err-"))
+        bad = tmp / "bad.json"
+        bad.write_text("{not json")
+        broken = tmp / "broken.json"
+        broken.write_text('{"challans": [{"tax": "1"}]}')
+        for argv, needle in (
+            (["lint", str(tmp / "missing.json")], "file not found"),
+            (["build", str(bad), "-o", str(tmp)], "not valid JSON"),
+            (["build", str(broken), "-o", str(tmp)], "required value is missing"),
+            (["intake", str(tmp / "missing.xlsx"), "-o", str(tmp / "x.json")], "file not found"),
+        ):
+            out = subprocess.run([sys.executable, str(SCRIPTS / "tds.py"), *argv],
+                                 capture_output=True, text=True)
+            self.assertNotEqual(out.returncode, 0, argv)
+            self.assertNotIn("Traceback", out.stderr, argv)
+            self.assertIn(needle, out.stderr, argv)
+            self.assertEqual(len(out.stderr.strip().splitlines()), 1, out.stderr)
+        import os
+        env = dict(os.environ, TDS_DEBUG="1")
+        out = subprocess.run([sys.executable, str(SCRIPTS / "tds.py"), "lint", str(tmp / "missing.json")],
+                             capture_output=True, text=True, env=env)
+        self.assertIn("Traceback", out.stderr)
+
     def test_build_and_lint_via_cli(self):
         tmp = Path(tempfile.mkdtemp(prefix="tds-cli-"))
         build = subprocess.run(
