@@ -127,6 +127,13 @@ This refuses to build if the deductee rows under any challan do not add up to
 that challan, because the utility's error message for that situation does not
 tell you which challan drifted.
 
+One exception, opt-in: set `"allow_allocated_excess": true` in the statement's
+`meta` when the shortfall has genuinely been deposited on a challan outside the
+quarter, so the rows cannot be reported anywhere else. The build then writes the
+file, names every over-allocated challan on stderr and in `manifest.json`, and
+the lint keeps raising it - so the package stays NOT READY and the difference is
+visible on Form 27A. Never set it to make a build pass.
+
 If a required header value is still missing, the file is named
 `DRAFT_PENDING_HEADER.txt` and a byte-identical short-name copy is written
 alongside it. The utility rejects input names longer than 12 characters

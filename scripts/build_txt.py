@@ -23,7 +23,13 @@ vague about both:
   and says which challan is affected.
 * the deductee rows charged to a challan may come to less than the tax on it
   (the deposit was rounded up, and the utility allows the excess) but never
-  more, which the utility rejects.
+  more, which the utility rejects - unless the statement says
+  ``meta.allow_allocated_excess`` is true. That escape hatch exists for a
+  deductor who has deposited the shortfall on a challan outside the quarter:
+  the rows still have to be reported where the deduction belongs, and the
+  short payment is then between the deductor and the department, not the file.
+  The build writes the file and names every such challan on stderr and in the
+  manifest; the lint still raises it, so the package stays NOT READY.
 """
 
 from __future__ import annotations
@@ -31,6 +37,7 @@ from __future__ import annotations
 import hashlib
 import importlib
 import json
+import sys
 from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
@@ -109,14 +116,23 @@ def build_records(st: Statement, layout) -> list[str]:
             )
 
     alloc = st.allocation()
-    for row in alloc:
-        if row["over_by"] > 0:
-            raise BuildError(
-                f"challan {row['serial']} ({row['date']}): deductee rows total "
-                f"{row['allocated']} against challan tax {row['challan_tax']} "
-                f"(over-allocated by {row['over_by']}). Move the excess to the challan it "
-                "was deposited under, or enter the missing challan."
-            )
+    over = [row for row in alloc if row["over_by"] > 0]
+    if over and not st.meta.get("allow_allocated_excess"):
+        row = over[0]
+        raise BuildError(
+            f"challan {row['serial']} ({row['date']}): deductee rows total "
+            f"{row['allocated']} against challan tax {row['challan_tax']} "
+            f"(over-allocated by {row['over_by']}). Move the excess to the challan it "
+            "was deposited under, or enter the missing challan."
+        )
+    for row in over:
+        print(
+            f"build: warning: challan {row['serial']} ({row['date']}) is asked to cover "
+            f"{row['over_by']} more than was deposited against it; written because "
+            "meta.allow_allocated_excess is true - the utility will treat the difference "
+            "as tax deducted but not paid",
+            file=sys.stderr,
+        )
 
     add(layout.build_bh(ctx), layout.WIDTHS["BH"], "BH")
 
@@ -215,5 +231,13 @@ def write(st: Statement, out_dir: str | Path, layout=None) -> dict:
             "variance": str(totals["variance"]),
         },
     }
+    over = [row for row in st.allocation() if row["over_by"] > 0]
+    if over:
+        manifest["allocated_excess"] = [
+            {"challan": row["serial"], "date": row["date"],
+             "challan_tax": str(row["challan_tax"]), "allocated": str(row["allocated"]),
+             "over_by": str(row["over_by"])}
+            for row in over
+        ]
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     return manifest
