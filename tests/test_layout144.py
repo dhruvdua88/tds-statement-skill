@@ -373,6 +373,13 @@ class TestAgainstTheWorkbook(unittest.TestCase):
                 "check the pinned numbers against it")
         import openpyxl
         wb = openpyxl.load_workbook(cls.path, data_only=True, read_only=True)
+        sheets = list(wb.sheetnames)
+        if WORKBOOK_SHEET not in sheets:
+            wb.close()
+            raise unittest.SkipTest(
+                f"{cls.path.name} has no {WORKBOOK_SHEET!r} sheet (sheets: "
+                f"{', '.join(sheets)}); that is a different workbook - the "
+                "one with the DD block is Form144_27Q_Q1-Q4_v1.2_22072026.xlsx")
         cls.ws = wb[WORKBOOK_SHEET]
 
     def cell(self, row, column):
