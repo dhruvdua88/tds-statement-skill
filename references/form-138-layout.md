@@ -22,7 +22,7 @@ Both forms were republished on 22-Jul-2026 in the same delimited format, and the
 | Field | Form 140 | Form 138 |
 |---|---|---|
 | FH 3, File Type | `NS1` | `SL1`, and the utility refuses an SL1 file whose batch header does not say 138 (T-FV-2100: "For File Type SL1, Form Number should be 138") |
-| BH 48, 49, 50 | the unmatched challan count and the two salary-detail placeholders, all blank | the same three fields, all blank, but for a different reason: the salary-detail count and gross total belong to the Q4 Annexure II, and T-FV-2135 ("Count of salary statement records must not be provided") keeps the count out of Q1 to Q3 |
+| BH 48, 49, 50 | the unmatched challan count and the two salary-detail placeholders, all blank | 48 and 50 stay blank, but 49 is written as `0`: a blank BH 49 is rejected by FVU 1.2 with T-FV-2127, and `0` passes (see the note below the table) |
 | DD 9 | Name of the Deductee | Name of the Employee; 75 characters either way |
 | DD 15, Section Code | column E | column F |
 | DD 19, 20 | date of payment, column F; amount paid, column G | date of payment, column G; amount paid, column I |
@@ -247,4 +247,4 @@ Writing a Q4 file without those records produces something the utility rejects: 
 
 ## Fields that stay blank
 
-Fields the workbook marks NA, and the optional fields whose remark reads "No value should be specified", are left empty. The three salary-detail placeholders in the batch header, BH 48, 49 and 50, are blank on this form. Every record still carries its full field count, and `build_txt` checks each written line against the counts in `layout138.WIDTHS`, so a layout change that adds a field cannot silently shorten a record.
+Fields the workbook marks NA, and the optional fields whose remark reads "No value should be specified", are left empty, with one exception: BH 49 carries `0` outside Q4. The workbook describes that field as "Count of Salary Details Records (Not applicable)" and says no value should be specified, but the standalone FVU 1.2 rejects a blank with `T-FV-2127 Invalid count of salary detail record` and accepts `0`; the department's own `138RQ1.txt` sample also prints `0` there. BH 48 and BH 50 stay empty. Every record still carries its full field count, and `build_txt` checks each written line against the counts in `layout138.WIDTHS`, so a layout change that adds a field cannot silently shorten a record.

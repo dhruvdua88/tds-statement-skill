@@ -75,8 +75,10 @@ FH_FIELDS = {
 
 # BH field numbers are the same as Form 140's throughout; only the wording of
 # the remarks differs. Fields 48, 49 and 50 are declared not applicable on this
-# form (the salary-detail count belongs to Q4), so they are not mapped and stay
-# blank.
+# form (the salary-detail count belongs to Q4), so 48 and 50 stay blank. Field
+# 49 does not: a blank BH 49 is rejected by the standalone FVU 1.2 with
+# T-FV-2127 "Invalid count of salary detail record", while "0" passes (see
+# ~/TDS-Skill-Research/C_form138_layout.md, "The second is BH 49").
 BH_FIELDS = {
     "line_no": 1,
     "record_type": 2,
@@ -116,6 +118,7 @@ BH_FIELDS = {
     "rp_country_code": 44,
     "rp_phone": 45,
     "batch_total": 47,
+    "salary_detail_count": 49,
     "regular_earlier": 52,
     "state_name": 54,
     "ministry_code": 57,
@@ -302,6 +305,10 @@ def build_bh(ctx: Context) -> dict:
         BH_FIELDS["rp_country_code"]: str(rp.get("country_code", "") or ""),
         BH_FIELDS["rp_phone"]: str(rp.get("phone", "") or ""),
         BH_FIELDS["batch_total"]: money_str(batch_total),
+        # Q1-Q3: the salary-detail count is not applicable but the field must
+        # still be present; FVU 1.2 rejects a blank with T-FV-2127. Q4 (Annexure
+        # II) is not built by this pipeline.
+        BH_FIELDS["salary_detail_count"]: "0",
         BH_FIELDS["regular_earlier"]: str(ded.get("regular_earlier", "N") or "N").upper()[:1],
         BH_FIELDS["token_previous"]: str(ded.get("token_previous", "") or ""),
         BH_FIELDS["state_name"]: str(ded.get("state_name", "") or ""),

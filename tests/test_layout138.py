@@ -103,6 +103,7 @@ EXPECTED_NAMES = {
     ("BH", "rp_country_code"): "Responsible Person Contact Country/Region",
     ("BH", "rp_phone"): "Responsible Person Contact Number",
     ("BH", "batch_total"): "Batch Total of - Total of Deposit Amount as per Challan",
+    ("BH", "salary_detail_count"): "Count of Salary Details Records (Not applicable)",
     ("BH", "regular_earlier"): "Whether regular statement for Form 138 filed for earlier period",
     ("BH", "state_name"): "State Name",
     ("BH", "ministry_code"): "Ministry Name",
